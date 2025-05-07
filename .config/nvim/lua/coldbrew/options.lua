@@ -1,3 +1,10 @@
+local instance_config_path = vim.fn.stdpath("data")  .. "instance.lua"
+if vim.fn.filereadable(machine_config_path) == 1 then
+  dofile(machine_config_path)
+else
+  vim.g.python_env_path = "~/.env/nvim" -- Linux
+end
+
 -- Set leader keys
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "

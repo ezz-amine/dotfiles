@@ -23,11 +23,7 @@ M.excludes = {  -- Default ignores
 }
 
 -- PYTHON
-if M.is_windows then
-  M.venv_path = "D:\\projects\\.env\\nvim\\" -- Windows
-else
-  M.venv_path = "~/.env/nvim" -- Linux
-end
+M.venv_path = vim.g.python_env_path
 
 if M.is_windows then
   M.venv_bin_path = M.venv_path .. "Scripts\\" -- Windows

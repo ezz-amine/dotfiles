@@ -1,0 +1,1 @@
+vim.g.python_env_path = "C:\\.env\\nvim\\" -- Windows
