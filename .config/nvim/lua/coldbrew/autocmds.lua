@@ -15,3 +15,4 @@ autocmd("BufWritePre", {
     vim.fn.mkdir(dir, "p")
   end,
 })
+

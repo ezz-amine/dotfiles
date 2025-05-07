@@ -4,6 +4,7 @@ if vim.fn.filereadable(instance_config_path) == 1 then
 else
   vim.g.python_env_path = "~/.env/nvim" -- Linux
   vim.g.gemini_token = nil
+  vim.gsessions_ignored_dirs = {}
 end
 
 -- Set leader keys

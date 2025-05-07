@@ -1,5 +1,6 @@
 {
   "LuaSnip": { "branch": "master", "commit": "03c8e67eb7293c404845b3982db895d59c0d1538" },
+  "auto-session": { "branch": "main", "commit": "00334ee24b9a05001ad50221c8daffbeedaa0842" },
   "bufferline.nvim": { "branch": "main", "commit": "655133c3b4c3e5e05ec549b9f8cc2894ac6f51b3" },
   "cheatsheet.nvim": { "branch": "master", "commit": "8ee4d76b6f902c4017dc28eddd79d925dfc55066" },
   "cmp-buffer": { "branch": "main", "commit": "b74fab3656eea9de20a9b8116afa3cfc4ec09657" },
@@ -34,7 +35,6 @@
   "parrot.nvim": { "branch": "main", "commit": "92beb44676260fb5fdc67ce4caccc8cee5ea7333" },
   "plenary.nvim": { "branch": "master", "commit": "857c5ac632080dba10aae49dba902ce3abf91b35" },
   "popup.nvim": { "branch": "master", "commit": "b7404d35d5d3548a82149238289fa71f7f6de4ac" },
-  "sessions.nvim": { "branch": "master", "commit": "f13158483e0b6255c6dfe473145ce4ee3495d844" },
   "sqlite.lua": { "branch": "master", "commit": "50092d60feb242602d7578398c6eb53b4a8ffe7b" },
   "telescope-file-browser.nvim": { "branch": "master", "commit": "626998e5c1b71c130d8bc6cf7abb6709b98287bb" },
   "telescope-frecency.nvim": { "branch": "master", "commit": "03a0efd1a8668b902bddef4b82cb7d46cd5ab22c" },

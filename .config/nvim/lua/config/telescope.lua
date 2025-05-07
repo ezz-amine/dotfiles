@@ -22,6 +22,7 @@ end
 M.find_excludes = tools.table_merge(vars.excludes, { ".protobuf" })
 M.find_cmd = {
   "rg",
+  "--follow",
   "--files",
   "--color=never",
   "--no-heading",
@@ -34,6 +35,7 @@ M.find_cmd = {
 M.grep_cmd = {
   "rg",
   "--color=never",
+  "--follow",
   "--no-heading",
   "--with-filename",
   "--line-number",

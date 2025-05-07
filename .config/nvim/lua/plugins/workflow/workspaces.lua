@@ -2,7 +2,7 @@ return {
   'natecraddock/workspaces.nvim',
   dependencies = {
     "nvim-telescope/telescope.nvim",
-    'natecraddock/sessions.nvim'
+    -- 'natecraddock/sessions.nvim'
   },
   config = {
       -- path to a file to store workspaces data in
@@ -47,16 +47,16 @@ return {
       remove = {},
       rename = {},
       open_pre = {
-        -- If recording, save current session state and stop recording
-        "SessionsStop",
+        -- -- If recording, save current session state and stop recording
+        -- "SessionsStop",
 
-        -- delete all buffers (does not save changes)
-        "silent %bdelete!",
+        -- -- delete all buffers (does not save changes)
+        -- "silent %bdelete!",
       },
       open = function()
-        local sessions = require("sessions")
-        sessions.load(nil, { silent = true })
-        sessions.start_autosave()
+        -- local sessions = require("sessions")
+        -- sessions.load(nil, { silent = true })
+        -- sessions.start_autosave()
       end,
     },
   }
