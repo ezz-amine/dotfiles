@@ -2,10 +2,9 @@ local gemini_token = "AIzaSyDvTM-BP8dSxxIruAtVWZxiJcpk9qV10JU"
 
 return {
   "frankroeder/parrot.nvim",
-  dependencies = { 
+  dependencies = {
+    "nvim-lua/plenary.nvim",
     "ibhagwan/fzf-lua",
-    build = "make",
-    "nvim-lua/plenary.nvim" 
   },
   opts = {},
   config = function()
@@ -13,7 +12,7 @@ return {
       -- Providers must be explicitly added to make them available.
       providers = {
         gemini  = {
-          api_key = gemini_token,
+          api_key = vim.g.gemini_token,
         },
       },
       online_model_selection = false,

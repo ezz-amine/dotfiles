@@ -3,6 +3,7 @@ if vim.fn.filereadable(instance_config_path) == 1 then
   dofile(instance_config_path)
 else
   vim.g.python_env_path = "~/.env/nvim" -- Linux
+  vim.g.gemini_token = nil
 end
 
 -- Set leader keys
