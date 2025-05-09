@@ -58,23 +58,30 @@ return {
             end
           },
           {
-            function()
-              local wins = vim.api.nvim_list_wins()
-              local layout = {}
-              for _, win in ipairs(wins) do
-                local config = vim.api.nvim_win_get_config(win)
-                if not config.external then
-                  table.insert(layout, config.width .. ":" .. config.height)
-                end
-              end
-              return table.concat(layout, " ")
-            end,
-            icon = " ",
+            -- function()
+            --   local wins = vim.api.nvim_list_wins()
+            --   local layout = {}
+            --   for _, win in ipairs(wins) do
+            --     local config = vim.api.nvim_win_get_config(win)
+            --     if not config.external then
+            --       table.insert(layout, config.width .. ":" .. config.height)
+            --     end
+            --   end
+            --   return table.concat(layout, " ")
+            -- end,
+            -- icon = " ",
           },
           "filetype",
         },
-        lualine_y = { "progress" },
-        lualine_z = { "location" },
+        lualine_y = { "progress", "location", },
+        lualine_z = {
+          {
+            function()
+              return os.date("%H:%M", os.time())
+            end,
+            icon = ""
+          }
+        },
       },
       inactive_sections = {
         lualine_a = {},
