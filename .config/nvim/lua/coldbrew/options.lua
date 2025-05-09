@@ -21,7 +21,7 @@ vim.opt.termguicolors = true
 
 -- bufferline: options
 vim.g.bufferline_auto_hide = true
-vim.opt.showtabline = 0
+vim.opt.showtabline = 0 
 
 -- git : options
 vim.g.git_blame_enable = true

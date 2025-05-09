@@ -7,7 +7,7 @@ set("n", "<leader>td", "<cmd>CBGreb @todo<cr>", {desc = "[T]O[D]O comment list"}
 --  - togglee tab bar
 set('n', '<leader>bt', function() vim.opt.showtabline = vim.opt.showtabline:get() == 2 and 0 or 2 end, {desc = '[B]uffer [T]oggle tabline'})
 --  - View all diagnostics
-set('n', '<leader>ee', vim.diagnostic.open_float, { desc = '[E]rror [E]xplainer' })
+set('n', '<leader><leader>', vim.diagnostic.open_float, { desc = '[E]rror [E]xplainer' })
 --  - set file type
 set('n', '<leader>sft', function()
     vim.api.nvim_feedkeys(':set filetype=', 'n', false)
@@ -15,7 +15,41 @@ end, { desc = '[S]et [F]ile [T]ype (python, html, go, ...)' })
 set('n', '<leader>sff', function()
     vim.api.nvim_feedkeys(':set fileformat=', 'n', false)
 end, { desc = '[S]et [F]ile [F]ormat (Unix, Windows)' })
+--  - because i'm lazy
+local function _save_all(insert)
+    vim.cmd('wa')
+    vim.cmd(':SessionSave')
+    vim.notify('All buffers saved', vim.log.levels.INFO, { title = 'ColdBrew' })
+    if insert then
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Right>', true, false, true), 'n', false)
+    end
+end
 
+vim.keymap.set('i', '<C-v>', '<C-r>+', { noremap = true, desc = 'Paste from system clipboard' })
+
+vim.keymap.set({'n', 'v'}, '<C-s>', function()
+    _save_all(false)
+  end, { desc = 'Save all buffers' })
+vim.keymap.set('i', '<C-s>', function()
+_save_all(true)
+end, { desc = 'Save all buffers' })
+
+vim.keymap.set('i', '<C-z>', '<C-o>u', { noremap = true, desc = 'Undo in insert mode' })
+vim.keymap.set('i', '<C-y>', '<C-o><C-r>', { noremap = true, desc = 'Redo in insert mode' })
+vim.keymap.set({'n', 'x'}, '<C-z>', 'u', { noremap = true, desc = 'Undo' })
+vim.keymap.set({'n', 'x'}, '<C-y>', '<C-r>', { noremap = true, desc = 'Redo' })
+
+--  - Move current line up/down with Ctrl+Up/Down
+local c_up = "<M-Up>"
+local c_down = "<M-Down>"
+vim.keymap.set("n", c_up, "<Cmd>move .-2<CR>==", { desc = "Move line up" })
+vim.keymap.set("n", c_down, "<Cmd>move .+1<CR>==", { desc = "Move line down" })
+vim.keymap.set("i", c_up, "<Esc><Cmd>move .-2<CR>==gi", { desc = "Move line up" })
+vim.keymap.set("i", c_down, "<Esc><Cmd>move .+1<CR>==gi", { desc = "Move line down" })
+vim.keymap.set("v", c_up, ":move '<-2<CR>gv=gv", { desc = "Move selection up" })
+vim.keymap.set("v", c_down, ":move '>+1<CR>gv=gv", { desc = "Move selection down" })
+
+vim.keymap.set({"n", "v"}, "<leader>gd", ":Telescope lsp_definitions<cr>", { desc = "Move line up" })
 
 -- View neo-tree sidenav
 set('n', '<leader>e', ":Neotree toggle<CR>", { silent = true, desc = 'File [E]xplorer' }) -- NvimTreeToggle
@@ -69,8 +103,8 @@ set("n", "<Tab><Tab>", builtin.find_files, { desc = "[F]ind [F]iles" })
 set("n", "<leader>fb", builtin.buffers, { desc = "[F]ind [B]uffers" })
 -- set("n", "<leader>fh", builtin.help_tags, { desc = "[F]ind [H]elp" })
 set("n", "<leader>dd", builtin.lsp_document_symbols, { desc = "[D]ocument [D]efinitions" })
--- set("n", "<leader>fe", ":Telescope file_browser<CR>", { desc = "[F]ile [E]xplorer" })
-set("n", "<C-E>", "<cmd>Telescope frecency<cr>", {desc = "[F]ind [R]ecent files"})
+set("n", "<leader>os", ":Telescope session-lens<CR>", { desc = "[F]ile [E]xplorer" })
+-- set("n", "<C-E>", "<cmd>Telescope frecency<cr>", {desc = "[F]ind [R]ecent files"})
 
 
 -- cheatsheet.nvim
@@ -101,3 +135,10 @@ set({ "n", "x" }, s_leader .. "s", "<cmd>TextCaseOpenTelescope<CR>", {desc = "[S
 
 -- timemachine: localhistory
 set({ "n", "x" }, s_leader .. "h", "<cmd>TimeMachineToggle<CR>", {desc = "Local [H]istory"})
+
+-- harpoon2
+local harpoon = require("harpoon")
+vim.keymap.set("n", "<leader>ah", function() harpoon:list():add() end)
+vim.keymap.set("n", "<C-h>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+

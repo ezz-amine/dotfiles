@@ -3,7 +3,7 @@ local vars = require("coldbrew.vars")
 local tools = require("coldbrew.tools")
 
 M.pcall_extensions = {}
-M.normal_extensions = {"file_browser","frecency","notify","workspaces","textcase","todo-comments"}
+M.normal_extensions = {"file_browser","frecency","notify","workspaces","textcase"}
 
 -- Define and call the extension loading function
 M.load_extensions = function ()

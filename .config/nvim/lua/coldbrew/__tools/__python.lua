@@ -1,10 +1,6 @@
 local python = {}
 local vars = require("coldbrew.vars")
 
--- run python or python tools (pytest, poetry, pip, ...) using venv bin path
-function python.venv_tool(bin_name)
-  return vars.venv_bin_path .. bin_name
-end
 
 
 -- Helper to find project root with pyproject.toml
@@ -28,7 +24,7 @@ function python.python_formatters()
   local use_pyproject = false
   local pyproject = Path:new(root):joinpath('pyproject.toml')
   if pyproject:exists() then
-    pyproject = Path:absolute()
+    pyproject = pyproject:absolute()
     use_pyproject = true
   end
   -- Formatter commands with OS-specific handling
@@ -90,6 +86,7 @@ local function detect_venv()
   return venv
 end
 
+
 -- For LSP configuration
 function python.get_python_path()
   local venv = detect_venv()
@@ -103,10 +100,38 @@ function python.get_python_path()
   return vars.is_windows and 'py' or 'python'
 end
 
+-- run python or python tools (pytest, poetry, pip, ...) using venv bin path
+function python.venv_tool(bin_name)
+  local venv = detect_venv()
+  if venv then
+    local bin_path = venv .. (vars.is_windows and '/Scripts/' .. bin_name .. '.exe' or '/bin/' .. bin_name)
+    if vim.fn.executable(bin_name) == 1 then
+      return bin_path
+    end
+  end
+
+  return vars.venv_bin_path .. bin_name
+end
+
+
 -- For statusline display
 function python.get_venv_name()
   local venv = detect_venv()
   return venv and " " .. vim.fn.fnamemodify(venv, ":t") or ""
 end
+
+function python.main_pyproject_path()
+  local Path = require("plenary.path")
+  local _path = Path:new(vim.fn.stdpath("config") .. "/dotfiles/python/pyproject.toml")
+
+  if not _path:exists() then
+    vim.notify("main python pyproject not found at '" .. _path:absolute() .. "'")
+    return nil
+  else
+    return _path:absolute()
+  end
+end
+
+
 
 return python
