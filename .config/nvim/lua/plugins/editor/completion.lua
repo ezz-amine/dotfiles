@@ -11,6 +11,7 @@ return {
       'hrsh7th/cmp-cmdline',
       'L3MON4D3/LuaSnip',
       'saadparwaiz1/cmp_luasnip',
+      "neovim/nvim-lspconfig",
       'rafamadriz/friendly-snippets',
     },
     config = function()
@@ -21,10 +22,15 @@ return {
       require('luasnip.loaders.from_vscode').lazy_load()
 
       cmp.setup({
+        enabled = true,
         snippet = {
           expand = function(args)
             luasnip.lsp_expand(args.body)
           end,
+        },
+        window = {
+          completion = cmp.config.window.bordered(),
+          documentation = cmp.config.window.bordered(),
         },
         mapping = cmp.mapping.preset.insert({
           ['<C-b>'] = cmp.mapping.scroll_docs(-4),
@@ -49,28 +55,15 @@ return {
             else
               fallback()
             end
-            end, { 'i', 's' }),
+          end, { 'i', 's' }),
         }),
         sources = cmp.config.sources({
           { name = 'nvim_lsp' },
-          { name = "parrot" },
           { name = 'luasnip' },
           { name = 'buffer' },
           { name = 'path' },
         }),
       })
-
-      -- Set configuration for specific filetype
-      cmp.setup.filetype('python', {
-        sources = cmp.config.sources({
-          { name = 'nvim_lsp' },
-          { name = "parrot" },
-          { name = 'luasnip' },
-        }, {
-          { name = 'buffer' },
-        })
-      })
-
       -- Use buffer source for `/` and `?`
       cmp.setup.cmdline({ '/', '?' }, {
         mapping = cmp.mapping.preset.cmdline(),

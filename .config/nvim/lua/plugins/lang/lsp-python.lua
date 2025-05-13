@@ -1,47 +1,181 @@
--- Set Python venv path (adjust to your venv location)
-
-local python_tools = require("coldbrew.tools").python
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
 return {
+  -- {
+  --   "neovim/python-client",
+  --   build = ":UpdateRemotePlugins",
+  --   config = function()
+  --     local python_tools = require("coldbrew.tools").python
+  --     vim.g.python3_host_prog = python_tools.get_python_path()
+  --   end,
+  --   ft = "python",
+  -- },
+  -- -- Optional: Mason for automatic LSP installation
+  -- {
+  --   "williamboman/mason.nvim",
+  --   opts = {
+  --     ensure_installed = { "pylsp" }
+  --   }
+  -- },
+
+  -- -- Optional: Debugging support
+  -- {
+  --   "mfussenegger/nvim-dap-python",
+  --   dependencies = { "mfussenegger/nvim-dap" },
+  --   ft = "python",
+  --   config = function()
+  --     require("dap-python").setup("~/.virtualenvs/debugpy/bin/python")
+  --   end
+  -- },
   {
     "neovim/nvim-lspconfig",
     ft = "python",
     dependencies = {
+      'hrsh7th/cmp-nvim-lsp',
+      'nvimtools/none-ls.nvim',
       "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
+      "williamboman/mason-lspconfig.nvim"
     },
     config = function()
-      require('lspconfig').pylsp.setup({
-        cmd = {python_tools.venv_tool('pylsp')},
+      local python_tools = require("coldbrew.tools").python
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+      require('lspconfig').basedpyright.setup({
+        cmd = { python_tools.venv_tool('basedpyright-langserver'), "--stdio" },
         capabilities = capabilities,
+        filetypes = { "python" },
+        root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "Pipfile", "pyrightconfig.json", ".git" },
+        on_attach = function()
+          local python_tools = require("coldbrew.tools").python
+          vim.g.python3_host_prog = python_tools.get_python_path()
+        end,
         settings = {
-          pylsp = {
-            pythonPath = python_tools.get_python_path(),
-            plugins = {
-              flake8 = {nabled = false,},
-              autopep8 = { enabled = false },
-              mccabe = {enabled = false},
-              pycodestyle = { enabled = false},
-              pyflakes = {enabled = false},
-              pylint = { enabled = true, executable = python_tools.venv_tool('pylint'), args = {"--rcfile=" .. python_tools.main_pyproject_path() }}, --
-              black = { enabled = true, executable = python_tools.venv_tool('black'), line_length = 120},
-              autoflake = { enabled = true, executable = python_tools.venv_tool('autoflake') },
-              isort = { enabled = true, executable = python_tools.venv_tool('isort') },
-              pylsp_mypy = {
-                enabled = false,
-              --   mypy_command = {python_tools.venv_tool('mypy')},
-              --   strict= true,
-              --   live_mode = true,
-              --   overrides={
-              --     "--ignore-missing-imports"
-              --   },
-              --   args = {}
-              --   --"--ignore-missing-imports", "--disallow-untyped-calls", "--disallow-untyped-defs", "--disallow-incomplete-defs"
+          basedpyright = {
+            disableOrganizeImports = true,
+            analysis = {
+              autoSearchPaths             = true,
+              autoImportCompletions       = true,
+              diagnosticMode              = "workspace",
+              typeCheckingMode            = "recommended", -- No type checking
+
+              diagnosticSeverityOverrides = {
+                -- strictListInference = false,
+                -- strictSetInference = false,
+                -- strictDictionaryInference = false,
+                -- analyzeUnannotatedFunctions = false,
+                -- strictParameterNoneValue = false,
+                -- enableExperimentalFeatures = false,
+                -- deprecateTypingAliases = false,
+                -- disableBytesTypePromotions = true,
+                -- strictGenericNarrowing = false,
+                -- enableTypeIgnoreComments = true,
+                -- enableReachabilityAnalysis = false,
+                -- failOnWarnings = false,
+                -- reportGeneralTypeIssues = "none",
+                -- reportPropertyTypeMismatch = "none",
+                -- reportFunctionMemberAccess = "error",
+                reportMissingImports = "error",
+                reportMissingModuleSource = "none",
+                reportInvalidTypeForm = "none",
+                reportMissingTypeStubs = "none",
+                reportImportCycles = "warning",
+                reportUnusedImport = "hint",
+                reportUnusedClass = "hint",
+                reportUnusedFunction = "hint",
+                reportUnusedVariable = "hint",
+                reportDuplicateImport = "warning",
+                reportWildcardImportFromLibrary = "hint",
+                reportAbstractUsage = "none",
+                reportArgumentType = "none",
+                -- reportAssertTypeFailure = "none",
+                -- reportAssignmentType = "none",
+                reportAttributeAccessIssue = "hint",
+                reportCallIssue = "hint",
+                reportInconsistentOverload = "warning",
+                -- reportIndexIssue = "none",
+                -- reportInvalidTypeArguments = "none",
+                -- reportNoOverloadImplementation = "none",
+                -- reportOperatorIssue = "none",
+                reportOptionalSubscript = "hint",
+                reportOptionalMemberAccess = "hint",
+                reportOptionalCall = "hint",
+                reportOptionalIterable = "hint",
+                reportOptionalContextManager = "hint",
+                reportOptionalOperand = "hint",
+                reportRedeclaration = "warning",
+                -- reportReturnType = "none",
+                -- reportTypedDictNotRequiredAccess = "none",
+                -- reportUntypedFunctionDecorator = "none",
+                -- reportUntypedClassDecorator = "none",
+                -- reportUntypedBaseClass = "none",
+                -- reportUntypedNamedTuple = "none",
+                reportPrivateUsage = "warning",
+                -- reportTypeCommentUsage = "hint",
+                reportPrivateImportUsage = "none",
+                reportConstantRedefinition = "error",
+                reportDeprecated = "warning",
+                reportIncompatibleMethodOverride = "hint",
+                reportIncompatibleVariableOverride = "hint",
+                -- reportInconsistentConstructor = "none",
+                reportOverlappingOverload = "hint",
+                reportPossiblyUnboundVariable = "hint",
+                reportMissingSuperCall = "warning",
+                -- reportUninitializedInstanceVariable = "none",
+                reportInvalidStringEscapeSequence = "warning",
+                reportUnknownParameterType = "none",
+                reportUnknownArgumentType = "none",
+                reportUnknownLambdaType = "none",
+                reportUnknownVariableType = "none",
+                reportUnknownMemberType = "none",
+                reportMissingParameterType = "none",
+                reportMissingTypeArgument = "none",
+                -- reportInvalidTypeVarUse = "none",
+                -- reportCallInDefaultInitializer = "none",
+                reportUnnecessaryIsInstance = "warning",
+                reportUnnecessaryCast = "warning",
+                reportUnnecessaryComparison = "warning",
+                reportUnnecessaryContains = "warning",
+                -- reportAssertAlwaysTrue = "none",
+                -- reportSelfClsParameterName = "none",
+                -- reportImplicitStringConcatenation = "none",
+                -- reportUndefinedVariable = "none",
+                -- reportUnhashable = "none",
+                -- reportUnboundVariable = "none",
+                -- reportInvalidStubStatement = "none",
+                -- reportIncompleteStub = "none",
+                -- reportUnsupportedDunderAll = "none",
+                reportUnusedCallResult = "hint",
+                -- reportUnusedCoroutine = "none",
+                -- reportUnusedExcept = "hint",
+                -- reportUnusedExpression = "none",
+                -- reportUnnecessaryTypeIgnoreComment = "none",
+                -- reportMatchNotExhaustive = "none",
+                -- reportShadowedImports = "none",
+                reportImplicitOverride = "hint",
+                reportUnreachable = "hint",
+                reportAny = "none",
+                reportExplicitAny = "none",
+                -- reportIgnoreCommentWithoutRule = "none",
+                -- reportInvalidCast = "none",
+                reportImplicitRelativeImport = "none",
+                reportPrivateLocalImportUsage = "none",
+                -- reportUnsafeMultipleInheritance = "none",
+                -- reportUnusedParameter = "hint",
+                -- reportImplicitAbstractClass = "none",
+                reportUnannotatedClassAttribute = "none",
+                -- reportIncompatibleUnannotatedOverride = "none",
+                -- reportInvalidAbstractMethod = "none",
               }
             }
           }
         }
+      })
+
+      require('cmp').setup.filetype('python', {
+        sources = require('cmp').config.sources({
+          { name = 'nvim_lsp' },
+          { name = 'luasnip' },
+        }, {
+          { name = 'buffer' },
+        })
       })
     end,
   },

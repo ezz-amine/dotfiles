@@ -46,17 +46,9 @@ return {
       add = {},
       remove = {},
       rename = {},
-      open_pre = {
-        -- -- If recording, save current session state and stop recording
-        -- "SessionsStop",
-
-        -- -- delete all buffers (does not save changes)
-        -- "silent %bdelete!",
-      },
+      open_pre = function()
+      end,
       open = function()
-        -- local sessions = require("sessions")
-        -- sessions.load(nil, { silent = true })
-        -- sessions.start_autosave()
       end,
     },
   }

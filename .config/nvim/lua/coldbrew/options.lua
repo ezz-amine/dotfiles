@@ -1,11 +1,14 @@
-local instance_config_path = vim.fn.stdpath("data")  .. "/instance.lua"
+local config = {}
+local instance_config_path = vim.fn.stdpath("data") .. "/.coldbrew.lua"
 if vim.fn.filereadable(instance_config_path) == 1 then
-  dofile(instance_config_path)
-else
-  vim.g.python_env_path = "~/.env/nvim" -- Linux
-  vim.g.gemini_token = nil
-  vim.gsessions_ignored_dirs = {}
+  config = dofile(instance_config_path)
 end
+-- coldbrew - Home Brew
+vim.g.python_env_path = config["python_env_path"] or "~/.env/nvim" -- Linux
+vim.g.gemini_token = config["gemini_token"] or nil
+vim.g.save_all_at_exit = false                                     -- running ColdBrew.save_all preLeave
+vim.g.save_session_at_exit = true                                  -- save current project/session preLeave
+
 
 -- Set leader keys
 vim.g.mapleader = " "
@@ -21,7 +24,7 @@ vim.opt.termguicolors = true
 
 -- bufferline: options
 vim.g.bufferline_auto_hide = true
-vim.opt.showtabline = 0 
+vim.opt.showtabline = 0
 
 -- git : options
 vim.g.git_blame_enable = true
@@ -45,3 +48,5 @@ vim.g.treesitter_highlight_config = {
     line_limit = 10000,
   }
 }
+
+vim.opt.sessionoptions = "buffers,curdir,folds,tabpages"

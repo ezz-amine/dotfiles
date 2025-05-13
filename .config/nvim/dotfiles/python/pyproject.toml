@@ -27,7 +27,7 @@ force_alphabetical_sort_within_sections = true
 overwrite_in_place = true
 combine_star = true
 star_first = true
-verbose = true
+verbose = false
 
 # [tool.black]
 # line-length = 120
@@ -105,3 +105,13 @@ generated-members = [".*pb2.*"]
 
 [tool.bandit]
 exclude_dirs = ["./tests/*", "./resources/*", "./.git/*", "./_dev_resources/*", "./.venv/*"]
+
+[tool.basedpyright]
+include = ["src"]
+exclude = ["**/node_modules",
+    "**/__pycache__",
+    "**/env",
+]
+
+
+pythonVersion = ">=3.11"
