@@ -1,5 +1,4 @@
-local Path = require("plenary.path")
-local f = require("brew-sessions.functions")
+local f = cb_mod "projects.functions"
 local Project = {}
 
 local function neotree_opened()
@@ -21,7 +20,7 @@ function Project.new(name, options)
   if options["path"] then
     path = options["path"]
   else
-    error("the project must have a path")
+    f.notify("project must have a path", vim.log.levels.ERROR)
   end
 
   if options["active_session"] then
@@ -36,19 +35,18 @@ function Project.new(name, options)
     sessions = {}
   end
 
-
   local self = setmetatable({
     name = name,
     path = path,
     active_session = active_session,
-    sessions = sessions
+    sessions = sessions,
   }, { __index = Project })
 
   return self
 end
 
 function Project:config_path()
-  return require("brew-sessions.manager").project_path(self.name)
+  return cb_mod("projects.manager").project_path(self.name)
 end
 
 function Project:save_session( --[[optional]] session_name)
@@ -57,11 +55,11 @@ function Project:save_session( --[[optional]] session_name)
     session_name = self.active_session
   end
 
-  vim.cmd(":Neotree close") -- close neotree if open (no need to check), to not cause issues when reloading the sessions
+  vim.cmd ":Neotree close" -- close neotree if open (no need to check), to not cause issues when reloading the sessions
   vim.cmd(":mksession! " .. self:config_path() .. "/" .. session_name .. ".vim")
 
   if is_neotree_opened then
-    vim.cmd(":Neotree show") -- re-open neotree if it was opened before the sessions saving process
+    vim.cmd ":Neotree show" -- re-open neotree if it was opened before the sessions saving process
   end
 
   f.notify("project '" .. self.name .. "' saved")
@@ -69,7 +67,7 @@ end
 
 function Project:load_session( --[[optional]] session_name)
   local is_neotree_opened = neotree_opened()
-  local manager = require("brew-sessions.manager")
+  local manager = cb_mod "projects.manager"
 
   if session_name == nil or session_name == "" then
     session_name = self.active_session
@@ -77,13 +75,21 @@ function Project:load_session( --[[optional]] session_name)
 
   if manager.current_project ~= self then
     manager.current_project = self
-    vim.cmd(":Neotree close")
-    vim.cmd(":CBCloseAll")
+
+    local cwd = vim.fn.getcwd()
+
+    vim.cmd ":Neotree close"
+    vim.cmd ":CBCloseAll"
     vim.cmd(":source " .. self:config_path() .. "/" .. session_name .. ".vim")
 
     if is_neotree_opened then
-      vim.cmd(":Neotree show") -- re-open neotree if it was opened before the sessions saving process
+      vim.cmd ":Neotree show" -- re-open neotree if it was opened before the sessions saving process
     end
+    if vim.g.preserve_cwd then
+      vim.cmd(":cd " .. cwd)
+    end
+
+    vim.cmd "bufdo filetype detect"
 
     f.notify("project '" .. self.name .. "' loaded")
   else

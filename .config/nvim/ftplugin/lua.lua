@@ -18,12 +18,3 @@ vim.api.nvim_create_autocmd('BufEnter', {
     vim.opt_local.shiftwidth = 2
   end
 })
-
--- Improved Lua block movement
-vim.keymap.set("n", "]]", function()
-  require("nvim-treesitter.textobjects.swap").goto_next_start("@block.outer")
-end, { desc = "Next Lua block" })
-
-vim.keymap.set("n", "[[", function()
-  require("nvim-treesitter.textobjects.swap").goto_prev_start("@block.outer")
-end, { desc = "Prev Lua block" })

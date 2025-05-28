@@ -1,53 +1,68 @@
 local ColdBrew = {
-    plugins = {},
-    post_save_cmds = {
-        "CBSaveSession"
+  modules = {
+    projects = {},
+    python = {
+      binaries = {
+        ["basedpyright-langserver"] = "basedpyright",
+        codespell = "codespell",
+        djhtml = "djhtml",
+        djlint = "djlint",
+        black = "black",
+        pylint = "pylint",
+        isort = "isort",
+      },
     },
-    telescope_exts = {
-        "brew_sessions"
-    }
+  },
+  post_save_cmds = {
+    "CBSaveSession",
+  },
+  telescope_exts = {
+    "cb_projects",
+  },
 }
 
 function ColdBrew.setup()
-    require("coldbrew.options")
-    vim.cmd('filetype plugin indent on')
+  require("coldbrew.options")
+  vim.cmd("filetype plugin indent on")
+  require("coldbrew.globals")
 
-    -- Set up Lazy.nvim plugin manager
-    require("plugins.lazy")
+  ColdBrew.load_modules()
 
-    ColdBrew.plugins["brew-sessions"] = {}
-    ColdBrew.load_plugins()
+  -- Set up Lazy.nvim plugin manager
+  require("plugins.lazy")
 
-    require("coldbrew.mappings")
-    require("coldbrew.autocmds")
-    require("coldbrew.commands")
+  ColdBrew.post_lazy()
+
+  cb_require("mappings")
+  cb_require("autocmds")
+  cb_require("commands")
 end
 
 function ColdBrew.notify(msg, level)
-    vim.notify(msg, level, { title = "ColdBrew - Home Brew" })
+  vim.notify(msg, level, { title = "ColdBrew - Core" })
 end
 
-function ColdBrew.load_plugins()
-    vim.opt.rtp:append(vim.fn.stdpath("config") .. "/coldbrew-plugins")
+function ColdBrew.load_modules()
+  for plugin_name, plugin_options in pairs(ColdBrew.modules) do
+    local plugin = cb_mod(plugin_name)
+    plugin.setup(plugin_options)
+  end
+end
 
-    for plugin_name, plugin_options in pairs(ColdBrew.plugins) do
-        local plugin = require(plugin_name)
-        plugin.setup(plugin_options)
-    end
-
-    for _, ext in ipairs(ColdBrew.telescope_exts) do
-        require("telescope").load_extension(ext)
-    end
+function ColdBrew.post_lazy()
+  -- for _, ext in ipairs(ColdBrew.telescope_exts) do
+  --   require("telescope").load_extension(ext)
+  -- end
 end
 
 function ColdBrew.save_all()
-    vim.cmd('wa!')
-    for _, cmd in ipairs(ColdBrew.post_save_cmds) do
-        if vim.fn.exists(cmd) then
-            vim.cmd(cmd)
-        end
+  vim.cmd("wa!")
+  for _, cmd in ipairs(ColdBrew.post_save_cmds) do
+    if vim.fn.exists(cmd) then
+      vim.cmd(cmd)
     end
-    ColdBrew.notify('All buffers saved', vim.log.levels.INFO)
+  end
+  ColdBrew.notify("All buffers saved", vim.log.levels.INFO)
 end
 
 return ColdBrew

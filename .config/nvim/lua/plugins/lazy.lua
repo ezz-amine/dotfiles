@@ -1,20 +1,19 @@
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
+  vim.fn.system {
     "git",
     "clone",
     "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
     "--branch=stable",
     lazypath,
-  })
+  }
 end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   { "nvim-lua/plenary.nvim" },
-  { "nvim-tree/nvim-web-devicons",           opts = {} },
-  { import = "plugins.global.mason" },          -- google it
+  { "nvim-tree/nvim-web-devicons" },
   { import = "plugins.ui.tokyonight" },         -- theme
   { import = "plugins.ui.neo-tree" },           -- explorer tree
   { import = "plugins.ui.bufferline" },         -- bufferline.nvim, tabs
@@ -25,7 +24,8 @@ require("lazy").setup({
   { import = "plugins.workflow.time-machine" }, -- time-machine.nvim, files local history ...
   { import = "plugins.workflow.cheatsheet" },   -- cheatsheet.nvim, mapping list ...
   { import = "plugins.workflow.harpoon" },      -- ThePrimeagen/harpoon, show todo comment ...
-  { import = "plugins.editor.completion" },     -- code complemtion list of plugins
+  { import = "plugins.workflow.which-key" },    -- folke/which-key.nvim, better helper for keymapsshow todo comment ...
+  { import = "plugins.editor.cmp" },            -- code complemtion list of plugins
   { import = "plugins.editor.commentary" },     -- tpope/vim-commentary
   { import = "plugins.editor.surround" },       -- "kylechui/nvim-surround", surround words, line, ...
   { import = "plugins.editor.blankline" },      -- "lukas-reineke/indent-blankline.nvim", show invisible indent, ...
@@ -33,13 +33,17 @@ require("lazy").setup({
   { import = "plugins.editor.multicursor" },    -- "jake-stewart/multicursor.nvim", surround words, line, ...
   { import = "plugins.editor.text-case" },      -- text-case.nvim, string manipulation ...
   { import = "plugins.editor.mini-pairs" },     -- mini-pairs
+  { import = "plugins.editor.refactoring" },    -- "ThePrimeagen/refactoring.nvim", ?? some advanced refactoring ...
   { import = "plugins.ai.parrot" },             -- "frankroeder/parrot.nvim", ai ??, ...
   { import = "plugins.git.lazygit" },           -- lazygit wrapper...
   { import = "plugins.git.gitblame" },          -- git-blame.nvim ...
   { import = "plugins.git.git-conflict" },      -- merge conflict resolver ...
   { import = "plugins.git.extras" },            -- extra mini plugins ...
   { import = "plugins.lang.none-ls" },          -- none-ls
-  { import = "plugins.lang.lsp-python" },       -- python lsp config
+  { import = "plugins.lang.mason" },            -- google it
+  { import = "plugins.lang.lspconfig" },        -- google it
+  { import = "plugins.lang.lazydev" },          -- "folke/lazydev.nvim"
+  { import = "plugins.lang.render-markdown" },  -- "MeanderingProgrammer/render-markdown.nvi"
 }, {
   install = {
     colorscheme = { "tokyonight-storm" },

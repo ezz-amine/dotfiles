@@ -1,5 +1,6 @@
 local create = vim.api.nvim_create_user_command
 create('W', "w!", { nargs = 0 })
+create('FB', ":Telescope file_browser", { nargs = 0 })
 
 create('CBGreb',
   function(opts)

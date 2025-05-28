@@ -12,17 +12,3 @@ vim.o.foldcolumn = '1'
 vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
-
--- Better syntax-aware text objects
-local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
-vim.keymap.set("n", ";", ts_repeat_move.repeat_last_move_next)
-vim.keymap.set("n", ",", ts_repeat_move.repeat_last_move_previous)
-
--- Jump between function/class definitions
-vim.keymap.set("n", "]f", function()
-  require("nvim-treesitter.textobjects.swap").goto_next_start("@function.outer")
-end, { desc = "Next function" })
-
-vim.keymap.set("n", "[f", function()
-  require("nvim-treesitter.textobjects.swap").goto_prev_start("@function.outer")
-end, { desc = "Prev function" })

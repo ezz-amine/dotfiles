@@ -1,9 +1,9 @@
 -- Register the extension
 
-local BrewSessions = require("brew-sessions")
+local CBProjects = cb_mod "projects"
 
 return require("telescope").register_extension {
   exports = {
-    brew_sessions = BrewSessions.brew_sessions,
+    cb_projects = CBProjects.ts_projects_list,
   },
 }

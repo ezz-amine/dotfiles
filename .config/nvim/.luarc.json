@@ -1,0 +1,9 @@
+{
+    "diagnostics.globals": [
+        "vim",
+        "cb_require",
+        "cb_config",
+        "require",
+        "cb_lsp",
+    ]
+}

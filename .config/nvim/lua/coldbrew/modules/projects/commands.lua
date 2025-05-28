@@ -17,7 +17,7 @@ function M.register(ProjectsManager)
   create(
     'CBListProjects',
     function(opts)
-      vim.cmd(":Telescope brew_sessions")
+      vim.cmd(":Telescope cb_projects")
     end,
     { nargs = 0 }
   )

@@ -1,4 +1,5 @@
 return {
-    python_env_path = "C:\\.env\\nvim\\",
-    gemini_token = nil
+  nvim_python_path = "C:\\.env\\nvim\\Scriptspython.exe",
+  gemini_token = nil,
 }
+
