@@ -39,6 +39,7 @@ vim.opt.cursorline = true
 vim.opt.signcolumn = "yes"
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("data") .. ".undodir"
+
 vim.schedule(function()
   vim.opt.clipboard = config["clipboard"] or "unnamed"
 end)
