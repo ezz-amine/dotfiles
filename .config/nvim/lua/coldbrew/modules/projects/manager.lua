@@ -72,13 +72,12 @@ function ProjectsManager.get_config()
     return nil
   end
 
-  if not check_config_file() then
-    return nil
+  local local_config = {}
+  if check_config_file() then
+    local_config = dofile(ProjectsManager.config_path())
   end
-
-  local local_config = dofile(ProjectsManager.config_path())
   ProjectsManager.config = {
-    projects = vim.tbl_get("projects") or {},
+    projects = vim.tbl_get(local_config, "projects") or {},
   }
 
   return ProjectsManager.config
@@ -108,8 +107,8 @@ function ProjectsManager.set_config()
   end
 
   serialized_table = cb.serialize_config(data)
-  print(vim.inspect(serialized_table))
-  local file, err = io.open(ProjectsManager.config_path() .. "2", "w")
+
+  local file, err = io.open(ProjectsManager.config_path(), "w")
   if file ~= nil then
     file:write(serialized_table)
     file:close()

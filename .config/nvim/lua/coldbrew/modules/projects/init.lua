@@ -1,9 +1,9 @@
-local ProjectsManager = cb_mod "projects.manager"
+local ProjectsManager = cb_mod("projects.manager")
 
 local CBProjects = {}
 
 local defaults = {
-  sessions_path = vim.fn.stdpath "data" .. "/cb-sessions/",
+  sessions_path = vim.fn.stdpath("data") .. "/cb-sessions/",
 }
 
 function CBProjects.setup(config)
@@ -16,6 +16,7 @@ end
 
 function CBProjects.post_lazy() end
 
+-- @todo remove deprected function
 function CBProjects.select_project(project)
   -- Get all modified buffers
   local unsaved_buffers = {}
@@ -39,11 +40,11 @@ function CBProjects.select_project(project)
   vim.ui.select({ "Save", "Discard", "Cancel" }, { prompt = "You have unsaved changes. What to do?" }, function(choice)
     if choice == "Save" then
       -- Save all buffers
-      vim.cmd ":CBSaveAll"
+      vim.cmd(":CBSaveAll")
       project:load_session()
     elseif choice == "Discard" then
-      vim.cmd ":bufdo e!"
-      vim.cmd ":CBSaveSession"
+      vim.cmd(":bufdo e!")
+      vim.cmd(":CBSaveSession")
       project:load_session()
     end
   end)
@@ -52,12 +53,19 @@ end
 function CBProjects.ts_projects_list(opts)
   opts = opts or {}
 
-  local pickers = require "telescope.pickers"
-  local finders = require "telescope.finders"
+  local pickers = require("telescope.pickers")
+  local finders = require("telescope.finders")
   local conf = require("telescope.config").values
-  local actions = require "telescope.actions"
-  local action_state = require "telescope.actions.state"
+  local actions = require("telescope.actions")
+  local action_state = require("telescope.actions.state")
   local small_select = cb_config("ui").small_pop_select
+
+  local function display_name(entry)
+    local disabled = entry.name == ProjectsManager.current_project.name
+    local selected_icon = disabled and "" or "󰉋"
+
+    return selected_icon .. " " .. entry.name .. " (" .. entry.path .. ")"
+  end
 
   pickers
       .new(opts, {
@@ -68,23 +76,26 @@ function CBProjects.ts_projects_list(opts)
         previewer = small_select.previewer,
         -- Smaller layout
 
-        finder = finders.new_table {
+        finder = finders.new_table({
           results = ProjectsManager.projects,
           entry_maker = function(entry)
             return {
-              value = entry,                           -- The entire item table
-              display = entry.name .. " (" .. entry.path .. ")",
-              ordinal = entry.name .. " " .. entry.path, -- For search
+              value = entry,
+              display = display_name(entry),
+              ordinal = entry.name .. " " .. entry.path,
+              -- valid = entry.name ~= ProjectsManager.current_project.name,
             }
           end,
-        },
+        }),
         sorter = conf.generic_sorter(opts),
         attach_mappings = function(prompt_bufnr, map)
           actions.select_default:replace(function()
             actions.close(prompt_bufnr)
             local project = action_state.get_selected_entry().value
-
-            CBProjects.select_project(project)
+            local disabled = project.name == ProjectsManager.current_project.name
+            if not disabled then
+              CBProjects.select_project(project)
+            end
           end)
           return true
         end,
