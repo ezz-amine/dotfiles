@@ -40,7 +40,7 @@ vim.opt.signcolumn = "yes"
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("data") .. ".undodir"
 vim.schedule(function()
-  vim.opt.clipboard = "unnamedplus"
+  vim.opt.clipboard = config["clipboard"] or "unnamed"
 end)
 vim.o.updatetime = 250
 vim.o.timeoutlen = 300

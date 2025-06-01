@@ -15,9 +15,7 @@ set("n", "<Esc><Esc>", "<cmd>nohlsearch<CR>") -- remove search highlight
 
 set("n", s_leader .. "tt", function()
   vim.opt.showtabline = vim.opt.showtabline == 2 and 0 or 2
-end, { desc = "[B]uffer [T]oggle tabline" })                                -- toggle tab bar
-
-set("i", "<C-v>", "<C-o>p", { noremap = true, desc = "insert mode paste" }) -- paste in insert mode
+end, { desc = "[B]uffer [T]oggle tabline" }) -- toggle tab bar
 
 set({ "n", "v" }, "<M-j>", function()
   vim.api.nvim_feedkeys("10j", vim.fn.mode(), false)
