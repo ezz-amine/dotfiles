@@ -1,4 +1,4 @@
-local f = cb_mod "projects.functions"
+local f = cb_mod("projects.functions")
 local Project = {}
 
 local function neotree_opened()
@@ -32,7 +32,7 @@ function Project.new(name, options)
   if options["sessions"] then
     sessions = options["sessions"]
   else
-    sessions = {}
+    sessions = { "default" }
   end
 
   local self = setmetatable({
@@ -55,11 +55,11 @@ function Project:save_session( --[[optional]] session_name)
     session_name = self.active_session
   end
 
-  vim.cmd ":Neotree close" -- close neotree if open (no need to check), to not cause issues when reloading the sessions
+  vim.cmd(":Neotree close") -- close neotree if open (no need to check), to not cause issues when reloading the sessions
   vim.cmd(":mksession! " .. self:config_path() .. "/" .. session_name .. ".vim")
 
   if is_neotree_opened then
-    vim.cmd ":Neotree show" -- re-open neotree if it was opened before the sessions saving process
+    vim.cmd(":Neotree show") -- re-open neotree if it was opened before the sessions saving process
   end
 
   f.notify("project '" .. self.name .. "' saved")
@@ -67,7 +67,7 @@ end
 
 function Project:load_session( --[[optional]] session_name)
   local is_neotree_opened = neotree_opened()
-  local manager = cb_mod "projects.manager"
+  local manager = cb_mod("projects.manager")
 
   if session_name == nil or session_name == "" then
     session_name = self.active_session
@@ -78,18 +78,18 @@ function Project:load_session( --[[optional]] session_name)
 
     local cwd = vim.fn.getcwd()
 
-    vim.cmd ":Neotree close"
-    vim.cmd ":CBCloseAll"
+    vim.cmd(":Neotree close")
+    vim.cmd(":CBCloseAll")
     vim.cmd(":source " .. self:config_path() .. "/" .. session_name .. ".vim")
 
     if is_neotree_opened then
-      vim.cmd ":Neotree show" -- re-open neotree if it was opened before the sessions saving process
+      vim.cmd(":Neotree show") -- re-open neotree if it was opened before the sessions saving process
     end
     if vim.g.preserve_cwd then
       vim.cmd(":cd " .. cwd)
     end
 
-    vim.cmd "bufdo filetype detect"
+    vim.cmd("bufdo filetype detect")
 
     f.notify("project '" .. self.name .. "' loaded")
   else

@@ -31,34 +31,56 @@ function ProjectsManager.project_path(project_name)
   return project_path
 end
 
-function ProjectsManager.get_config()
-  local dir_path, err = vim.loop.fs_realpath(ProjectsManager.base_path())
-
+local function _create_config_file()
+  local file, err = io.open(ProjectsManager.config_path(), "w")
   if err ~= nil then
-    local success, err = vim.fn.mkdir(dir_path, "p") -- dir_path:mkdir()
+    error("Failed to create file: " .. tostring(err), vim.log.levels.ERROR)
+  elseif file ~= nil then
+    file:write(cb.serialize_config({}))
+    file:close()
+  end
+end
+
+local function check_config_dir()
+  local dir_path, err = vim.loop.fs_realpath(ProjectsManager.base_path())
+  if err ~= nil then
+    local success, err = vim.fn.mkdir(ProjectsManager.base_path(), "p")
     if err ~= nil then
       error("Failed to create directory: " .. tostring(err), vim.log.levels.ERROR)
     end
-    return nil
+
+    _create_config_file()
+    return false
   end
 
-  -- 2. Check and create file if needed
-  local a, b = ProjectsManager.config_path():gsub("/", "\\")
+  return true
+end
+
+local function check_config_file()
   local file_path, err = vim.loop.fs_realpath(ProjectsManager.config_path())
 
   if err ~= nil then
-    local file, err = io.open(ProjectsManager.config_path(), "w")
-    if err ~= nil then
-      error("Failed to create file: " .. tostring(err), vim.log.levels.ERROR)
-    elseif file ~= nil then
-      file:write("")
-      file:close()
-    end
+    _create_config_file()
+    return false
+  end
 
+  return true
+end
+
+function ProjectsManager.get_config()
+  if not check_config_dir() then
     return nil
   end
 
-  ProjectsManager.config = dofile(file_path)
+  if not check_config_file() then
+    return nil
+  end
+
+  local local_config = dofile(ProjectsManager.config_path())
+  ProjectsManager.config = {
+    projects = vim.tbl_get("projects") or {},
+  }
+
   return ProjectsManager.config
 end
 
@@ -78,7 +100,7 @@ function ProjectsManager.set_config()
   local data = cb.tbl_copy(ProjectsManager.config)
 
   for _, p in ipairs(ProjectsManager.projects) do
-    data["projects"][p.name] = {
+    data.projects[p.name] = {
       path = p.path,
       active_session = p.active_session or "default",
       sessions = p.sessions or {},
@@ -86,6 +108,7 @@ function ProjectsManager.set_config()
   end
 
   serialized_table = cb.serialize_config(data)
+  print(vim.inspect(serialized_table))
   local file, err = io.open(ProjectsManager.config_path() .. "2", "w")
   if file ~= nil then
     file:write(serialized_table)
@@ -126,7 +149,7 @@ end
 
 function ProjectsManager.register_project(project)
   table.insert(ProjectsManager.projects, project)
-  ProjectsManager.unload_projects()
+  ProjectsManager.set_config()
 end
 
 function ProjectsManager.get_current_project()
@@ -159,36 +182,36 @@ function ProjectsManager.find_project_by_cwd()
 end
 
 function ProjectsManager.create(args)
-  -- split args
-  -- args = vim.split(args, "%s+")
-  -- local project_name, project_dir = f.get_arg(args, 1), f.get_arg(args, 2, vim.fn.getcwd())
-  -- project_dir = Path:new(project_dir)
+  args = vim.split(args, "%s+")
+  local project_name, raw_project_dir = f.get_arg(args, 1), f.get_arg(args, 2, vim.fn.getcwd())
+  local project_dir, err = vim.loop.fs_realpath(raw_project_dir)
 
-  -- -- if the project_dir exists is keep the absolute path, if not it popup an error
-  -- if not project_dir:exists() then
-  --   f.notify(project_dir .. "don't exists", vim.log.levels.ERROR)
-  --   return false
-  -- else
-  --   project_dir = project_dir:absolute()
-  -- end
+  if err ~= nil then
+    f.notify(raw_project_dir .. "is not a valid path", vim.log.levels.ERROR)
+    return false
+  end
 
-  -- -- if the project exists (a folder already exists)
-  -- if Path:new(ProjectsManager.project_path(project_name)):exists() then
-  --   f.notify("project exists", vim.log.levels.WARN)
-  --   return false
-  -- end
+  local project_rc_path = ProjectsManager.project_path(project_name)
+  local _, err = vim.loop.fs_realpath(project_rc_path)
 
-  -- local ok, err = vim.fn.mkdir(ProjectsManager.project_path(project_name), "p")
-  -- if ok == 0 then
-  --   f.notify("failed to create directory: " .. err, vim.log.levels.ERROR)
-  -- end
+  if err == nil then
+    f.notify("project " .. project_name .. " already exists, nothing happend", vim.log.levels.WARN)
+    return false
+  end
 
-  -- local project = Project.new(project_name, { path = project_dir })
+  local success, err = vim.fn.mkdir(project_rc_path, "p")
 
-  -- ProjectsManager.register_project(project)
-  -- ProjectsManager.current_project = project
-  -- project:save_session()
-  -- return true
+  if success == nil or err ~= nil then
+    f.notify("Failed to create directory: " .. tostring(err), vim.log.levels.ERROR)
+    return false
+  end
+
+  local project = Project.new(project_name, { path = project_dir })
+
+  ProjectsManager.register_project(project)
+  ProjectsManager.current_project = project
+  project:save_session()
+  return true
 end
 
 return ProjectsManager

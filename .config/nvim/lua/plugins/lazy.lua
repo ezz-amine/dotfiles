@@ -1,13 +1,13 @@
-local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system {
+  vim.fn.system({
     "git",
     "clone",
     "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
     "--branch=stable",
     lazypath,
-  }
+  })
 end
 vim.opt.rtp:prepend(lazypath)
 
@@ -19,6 +19,7 @@ require("lazy").setup({
   { import = "plugins.ui.bufferline" },         -- bufferline.nvim, tabs
   { import = "plugins.ui.alpha" },              -- goolord/alpha-nvim - dashboard
   { import = "plugins.ui.lualine" },            -- nvim-lualine/lualine.nvim - status bar, bottom bar
+  { import = "plugins.ui.notify" },             -- rcarriga/nvim-notify
   { import = "plugins.workflow.telescope" },    -- telescope.nvim, search, keymaps, ...
   { import = "plugins.workflow.spectre" },      -- nvim-spectre, adv global search ...
   { import = "plugins.workflow.time-machine" }, -- time-machine.nvim, files local history ...
