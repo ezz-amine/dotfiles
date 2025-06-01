@@ -61,8 +61,7 @@ function CBProjects.ts_projects_list(opts)
   local small_select = cb_config("ui").small_pop_select
 
   local function display_name(entry)
-    local disabled = entry.name == ProjectsManager.current_project.name
-    local selected_icon = disabled and "" or "󰉋"
+    local selected_icon = entry:is_current() and "" or "󰉋"
 
     return selected_icon .. " " .. entry.name .. " (" .. entry.path .. ")"
   end
@@ -83,7 +82,6 @@ function CBProjects.ts_projects_list(opts)
               value = entry,
               display = display_name(entry),
               ordinal = entry.name .. " " .. entry.path,
-              -- valid = entry.name ~= ProjectsManager.current_project.name,
             }
           end,
         }),
@@ -92,8 +90,7 @@ function CBProjects.ts_projects_list(opts)
           actions.select_default:replace(function()
             actions.close(prompt_bufnr)
             local project = action_state.get_selected_entry().value
-            local disabled = project.name == ProjectsManager.current_project.name
-            if not disabled then
+            if not project:is_current() then
               CBProjects.select_project(project)
             end
           end)

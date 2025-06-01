@@ -28,7 +28,7 @@ function load_session(ProjectsManager)
   local project = ProjectsManager.find_project_by_cwd()
   if project == nil then
     f.notify("no project found for '" .. vim.fn.getcwd() .. "'", vim.log.levels.WARN)
-  else
+  elseif project.name ~= ProjectsManager.get_current_project_name() then
     project:load_session()
   end
 end

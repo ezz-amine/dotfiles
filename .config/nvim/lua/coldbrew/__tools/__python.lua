@@ -66,6 +66,9 @@ function python.lualine_venv()
       return text
     end,
     icon = { "", color = { fg = icon_color } },
+    cond = function()
+      return vim.bo.filetype == "python"
+    end,
   }
 end
 

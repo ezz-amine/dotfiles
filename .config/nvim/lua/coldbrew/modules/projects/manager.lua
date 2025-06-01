@@ -155,6 +155,13 @@ function ProjectsManager.get_current_project()
   return ProjectsManager.current_project
 end
 
+function ProjectsManager.get_current_project_name()
+  if ProjectsManager.current_project ~= nil then
+    return ProjectsManager.current_project.name
+  end
+  return nil
+end
+
 function ProjectsManager.save_current_project(args)
   if ProjectsManager.current_project == nil then
     f.notify("no project loaded", vim.log.levels.WARN)

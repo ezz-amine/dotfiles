@@ -2,7 +2,7 @@ local lsp = {
   "lsp_status",
   ignore_lsp = {
     "null-ls",
-    "none-ls"
+    "none-ls",
   },
 }
 local filename = {
@@ -24,10 +24,10 @@ local filename = {
   shorting_target = 40, -- Shortens path to leave 40 spaces in the window
   -- for other components. (terrible name, any suggestions?)
   symbols = {
-    modified = '', -- Text to show when the file is modified.
-    readonly = '󰌾', -- Text to show when the file is non-modifiable or readonly.
-    unnamed = 'UNKNOWNIUM', -- Text to show for unnamed buffers.
-    newfile = 'NEWUM', -- Text to show for newly created file before first write
+    modified = "", -- Text to show when the file is modified.
+    readonly = "󰌾", -- Text to show when the file is non-modifiable or readonly.
+    unnamed = "UNKNOWNIUM", -- Text to show for unnamed buffers.
+    newfile = "NEWUM", -- Text to show for newly created file before first write
   },
 }
 
@@ -68,7 +68,7 @@ return {
     lualine_c = {},
     lualine_x = {},
     lualine_y = {},
-    lualine_z = { lsp }
+    lualine_z = { lsp },
   },
   inactive_winbar = {
     lualine_a = {},
@@ -91,31 +91,24 @@ return {
       "diagnostics",
     },
     lualine_c = {
-      "filetype",
+      {
+        "filetype",
+        on_click = function()
+          vim.cmd("Telescope filetypes")
+        end,
+      },
     },
     lualine_x = {
-      -- {
-      --   function()
-      --     local ok, PluginManager = require("brew-sessions.manager")
-      --     vim.notify(ok)
-      --     -- if PluginManager.current_project ~= nil then
-      --     --   return {
-      --     --     function()
-      --     --       return PluginManager.current_project.name
-      --     --     end,
-      --     --     icon = "󱥾"
-      --     --   }
-      --     -- end
-      --     return "󰷌 -"
-      --   end,
-      -- },
       {
-        'fileformat',
+        "cb_project",
+      },
+      {
+        "fileformat",
         symbols = {
-          unix = '', -- e712
-          dos = '', -- e70f
-          mac = '', -- e711
-        }
+          unix = "", -- e712
+          dos = "", -- e70f
+          mac = "", -- e711
+        },
       },
       {
         "encoding",
@@ -131,21 +124,21 @@ return {
         "datetime",
         style = "%d/%m/%Y %H:%M",
         icon = "",
-      }
+      },
     },
   },
   inactive_sections = {
     lualine_a = {},
     lualine_b = {},
     lualine_c = {},
-    lualine_x = { require("coldbrew.tools").python.lualine_venv() },
+    lualine_x = {},
     lualine_y = { "progress", "location" },
     lualine_z = {
       {
         "datetime",
         style = "%d/%m/%Y %H:%M",
         icon = "",
-      }
+      },
     },
   },
 }

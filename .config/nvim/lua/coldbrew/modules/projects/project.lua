@@ -89,12 +89,16 @@ function Project:load_session( --[[optional]] session_name)
       vim.cmd(":cd " .. cwd)
     end
 
-    vim.cmd("bufdo filetype detect")
+    -- vim.cmd("bufdo filetype detect")
 
     f.notify("project '" .. self.name .. "' loaded")
   else
     f.notify("project '" .. self.name .. "' is already loaded")
   end
+end
+
+function Project:is_current()
+  return self.name == cb_mod("projects.manager").get_current_project_name()
 end
 
 return Project
