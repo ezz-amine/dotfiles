@@ -1,0 +1,94 @@
+#!/bin/bash
+
+if [ "$(id -u)" -eq 0 ]; then
+    echo "ERROR: This script should not be run as root. Please run as a regular user."
+    exit 1
+fi
+
+# Variables
+PYTHON_SOURCE="https://www.python.org/ftp/python/3.13.2/Python-3.13.2.tgz"
+NERD_FONTS_SOURCE="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/FiraCode.tar.xz"
+LAZYGIT_SOURCE="https://github.com/jesseduffield/lazygit/releases/download/v0.51.1/lazygit_0.51.1_Linux_x86_64.tar.gz"
+YAZI_SOURCE="https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-musl.zip"
+NEOVIM_SOURCE="https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz"
+STARSHIP_SOURCE="https://starship.rs/install.sh"
+BROWSH_SOURCE="https://github.com/browsh-org/browsh/releases/download/v1.8.0/browsh_1.8.0_linux_amd64.rpm"
+
+cd ~
+
+echo "Installing system packages..."
+sudo dnf install -y git curl wget gcc make cmake autoconf automake libtool \
+    bzip2-devel openssl-devel ncurses-devel readline-devel zip unzip\
+    zlib-devel libffi-devel sqlite-devel xz-devel postgresql-devel \
+    bat btop fish fzf ripgrep fd-find jq yq tldr xclip podman podman-compose
+
+echo "Enabling Node.js 22..."
+sudo dnf module enable -y nodejs:22
+sudo dnf install -y nodejs npm
+
+echo "Installing lazygit..."
+wget "$LAZYGIT_SOURCE" -O lazygit.tar.gz
+tar xf lazygit.tar.gz lazygit
+sudo install lazygit /usr/local/bin
+rm lazygit lazygit.tar.gz
+
+echo "Installing yazi..."
+wget "$YAZI_SOURCE" -O yazi.zip
+unzip yazi.zip -d yazi-bin
+rg --files -g yazi ./yazi-bin | sudo xargs install -t /usr/local/bin
+rm -rf yazi.zip yazi-bin
+
+echo "Building Python from source..."
+wget "$PYTHON_SOURCE" -O Python.tar.gz
+tar -xzf Python.tar.gz
+cd Python-*/ || exit
+
+./configure --enable-optimizations \
+            --with-lto \
+            --enable-shared \
+            --enable-ipv6 \
+            --with-system-expat \
+            --with-system-ffi \
+            --with-ensurepip=install \
+            --with-openssl \
+            --with-readline \
+            --with-zlib \
+            --with-bz2 \
+            --with-sqlite3 \
+            --with-lzma \
+            --with-curses
+
+make -j "$(nproc)"
+sudo make altinstall
+cd ..
+rm -rf Python-* Python.tar.gz
+
+echo "Installing Python tools..."
+python3.13 -m pip install --user uv pipx
+python3.13 -m pipx ensurepath
+python3.13 -m pipx install poetry
+
+echo "Installing Nerd Fonts..."
+mkdir -p ~/.local/share/fonts
+wget "$NERD_FONTS_SOURCE" -O nerd-fonts.tar.xz
+tar -xf nerd-fonts.tar.xz -C ~/.local/share/fonts
+rm nerd-fonts.tar.xz
+fc-cache -fv
+
+echo "Installing Neovim..."
+wget "$NEOVIM_SOURCE" -O nvim.tar.gz
+sudo tar -C /usr/local -xzf nvim.tar.gz --strip-components=1
+rm nvim.tar.gz
+
+echo "Installing Starship..."
+curl -sS "$STARSHIP_SOURCE" | sh -s -- --yes
+
+echo "Setting up fish shell..."
+sudo chsh -s /usr/bin/fish "$USER"
+sudo chsh -s /usr/bin/fish root
+
+echo "Creating podman symlinks for docker compatibility..."
+sudo ln -sf /usr/bin/podman /usr/local/bin/docker
+sudo ln -sf /usr/bin/podman-compose /usr/local/bin/docker-compose
+
+echo "Installation completed successfully!"
