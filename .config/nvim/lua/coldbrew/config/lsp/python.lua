@@ -1,5 +1,3 @@
-local python_tools = require("coldbrew.tools").python
-
 local settings = {
   disableOrganizeImports = true,
   analysis = {
@@ -125,7 +123,6 @@ return function(opts)
 
   if lspconfig ~= nil then
     lspconfig.basedpyright.setup({
-      cmd = { python_tools.venv_tool("basedpyright-langserver"), "--stdio" },
       capabilities = capabilities,
       filetypes = { "python" },
       root_markers = {
@@ -137,12 +134,10 @@ return function(opts)
         "pyrightconfig.json",
         ".git",
       },
-      on_attach = function()
-        vim.g.python3_host_prog = python_tools.get_python_path()
-      end,
       settings = {
         basedpyright = settings,
       },
+      root_dir = lspconfig.util.root_pattern(".git", "pyproject.toml", "requirements.txt"),
     })
   end
 

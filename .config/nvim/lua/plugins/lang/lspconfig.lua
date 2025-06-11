@@ -6,6 +6,7 @@ return {
       "nvimtools/none-ls.nvim",
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
+      "b0o/SchemaStore.nvim",
     },
     config = function()
       cb_config("lsp")
@@ -19,12 +20,19 @@ return {
         capabilities = capabilities,
       }
       local langs = {
-        -- "python",
-        -- "js-ts", -- web
+        "python",
         "lua",
+        "go",
+        "ecmascripts", -- web
+        "html",
+        "css",
+        "toml",
+        "yaml",
+        "json",
         "markdown",
+        "docker",
+        "shells",
       }
-      vim.lsp.set_log_level("debug") -- helpful for troubleshooting
       for _, lang in ipairs(langs) do
         cb_lsp(lang)(opts)
       end

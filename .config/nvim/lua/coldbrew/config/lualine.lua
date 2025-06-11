@@ -116,14 +116,23 @@ return {
           return str == "utf-8" and "UTF8" or str:upper()
         end,
       },
-      require("coldbrew.tools").python.lualine_venv(),
+      {
+        "cb_venv",
+      },
+      -- require("coldbrew.tools").python.lualine_venv(),
     },
-    lualine_y = { "progress", "location" },
+    lualine_y = {},
     lualine_z = {
       {
         "datetime",
         style = "%d/%m/%Y %H:%M",
         icon = "",
+        cond = function()
+          return not vim.g.run_in_tmux
+        end,
+      },
+      {
+        "cb_location",
       },
     },
   },
@@ -138,6 +147,9 @@ return {
         "datetime",
         style = "%d/%m/%Y %H:%M",
         icon = "",
+        cond = function()
+          return not vim.g.run_in_tmux
+        end,
       },
     },
   },

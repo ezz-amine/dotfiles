@@ -28,7 +28,7 @@ function load_session(ProjectsManager)
   local project = ProjectsManager.find_project_by_cwd()
   if project == nil then
     f.notify("no project found for '" .. vim.fn.getcwd() .. "'", vim.log.levels.WARN)
-  elseif project.name ~= ProjectsManager.get_current_project_name() then
+  elseif not project:is_current() then
     project:load_session()
   end
 end
@@ -39,7 +39,9 @@ function M.register(ProjectsManager)
   autocmd("VimEnter", {
     callback = function()
       if vim.fn.argc() == 0 then
+        -- vim.schedule(function()
         load_session(ProjectsManager)
+        -- end)
       else
         local arg0 = vim.fn.argv(0)
         if type(arg0) == "string" and vim.fn.isdirectory(arg0) == 1 then

@@ -3,18 +3,23 @@ return {
   providers = {
     gemini = {
       api_key = vim.g.gemini_token,
+      endpoint = function(self)
+        return "https://generativelanguage.googleapis.com/v1beta/models/"
+            .. self._model
+            .. ":streamGenerateContent?alt=sse"
+      end,
     },
-    github = {
-      api_key = vim.g.github_token,
-      models = {
-        "mistral-ai/Ministral-3B"
-      },
-      params = {
-        temperature = 1.0,
-        max_tokens = 1000,
-        top_p = 1.0
-      }
-    },
+    -- github = {
+    --   api_key = vim.g.github_token,
+    --   models = {
+    --     "mistral-ai/Ministral-3B",
+    --   },
+    --   params = {
+    --     temperature = 1.0,
+    --     max_tokens = 1000,
+    --     top_p = 1.0,
+    --   },
+    -- },
   },
   online_model_selection = false,
   toggle_target = "vsplit",

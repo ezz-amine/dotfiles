@@ -3,13 +3,41 @@ local ColdBrew = {
     projects = {},
     python = {
       binaries = {
-        ["basedpyright-langserver"] = "basedpyright",
-        codespell = "codespell",
-        djhtml = "djhtml",
-        djlint = "djlint",
-        black = "black",
-        pylint = "pylint",
-        isort = "isort",
+        {
+          name = "codespell",
+          binary = "codespell",
+          global = true,
+        },
+        {
+          name = "djhtml",
+          binary = "djhtml",
+          global = true,
+        },
+        {
+          name = "djlint",
+          binary = "djlint",
+          global = true,
+        },
+        {
+          name = "basedpyright",
+          binary = "basedpyright-langserver",
+          global = false,
+        },
+        {
+          name = "black",
+          binary = "black",
+          global = false,
+        },
+        {
+          name = "pylint",
+          binary = "pylint",
+          global = false,
+        },
+        {
+          name = "isort",
+          binary = "isort",
+          global = false,
+        },
       },
     },
   },
@@ -21,7 +49,12 @@ local ColdBrew = {
   },
 }
 
+function ColdBrew.random_joke(prefix)
+  return require("coldbrew.joke")(prefix)
+end
+
 function ColdBrew.setup()
+  vim.cmd.echo(vim.fn.string(ColdBrew.random_joke("Just wait...")))
   require("coldbrew.options")
   vim.cmd("filetype plugin indent on")
   require("coldbrew.globals")

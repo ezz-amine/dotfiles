@@ -1,6 +1,13 @@
 local servers = {
   "lua_ls",
   "marksman",
+  "taplo",
+  "yamlls",
+  "jsonls",
+  "dockerls",
+  "docker_compose_language_service",
+  "gopls",
+  "bashls",
 }
 local packages = {
   "stylua",

@@ -1,4 +1,4 @@
-local theme = require "alpha.themes.startify"
+local theme = require("alpha.themes.startify")
 local layout = theme.config.layout
 
 local header = {
@@ -32,17 +32,16 @@ local sep = {
     -- wrap = "overflow";
   },
 }
-
 local top_buttons = {
   type = "group",
   val = {
     theme.button("o", "Open File", function()
-      require("telescope.builtin").find_files {
+      require("telescope.builtin").find_files({
         hidden = true,
         no_ignore = false,        -- also show files ignored by .gitignore
         no_ignore_parent = false, -- don't respect parent .gitignore
         file_ignore_patterns = { ".git[/\\].*", "node_modules[/\\].*", "__pycache__[/\\].*" },
-      }
+      })
     end),
     theme.button("p", "Open Project", "<cmd>CBListProjects<CR>"),
   },

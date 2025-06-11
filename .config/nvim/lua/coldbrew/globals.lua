@@ -15,9 +15,13 @@ function cb_lsp(lang)
   return cb_config("lsp." .. lang)
 end
 
-cb = {}
--- language tools and helpers
+cb = {
+  joke = function()
+    return require("coldbrew").random_joke()
+  end,
+}
 
+-- language tools and helpers
 function cb.any(t, predicate)
   for _, v in pairs(t) do
     if predicate(v) then
@@ -68,16 +72,15 @@ function cb.is_dict(value)
   return cb.is_table(value) and not cb.is_list(value)
 end
 
---is_dict
---is_list
+-- table(list, dict) helpers
 
--- shalow copy of a table
 function cb.tbl_copy(tbl)
+  -- shalow copy of a table
   return vim.tbl_extend("force", {}, tbl)
 end
 
--- merge 2 table
 function cb.tbl_merge(tbl_1, tbl_2)
+  -- merge 2 table
   local result = cb.tbl_copy(tbl_1)
   for _, value in ipairs(tbl_2) do
     table.insert(result, value)
@@ -124,6 +127,19 @@ function cb.serialize_config(value)
   return "return " .. serialize_value(value)
 end
 
+-- helpers for log
+cb.log = {
+  echo = function(msg)
+    vim.cmd.echo(vim.fn.string(msg))
+  end,
+  info = function(msg)
+    vim.cmd.echom(vim.fn.string(msg))
+  end,
+  error = function(msg)
+    vim.cmd.echoerr(vim.fn.string(msg))
+  end,
+}
+
 -- helpers for paths
 function cb.os_path(path)
   if vim.g.is_windows then
@@ -136,12 +152,21 @@ function cb.os_path(path)
 end
 
 -- system helpers
+function sleep(ms, callback)
+  local timer = vim.loop.new_timer()
+  timer:start(ms, 0, function()
+    timer:close()
+    if callback then
+      callback()
+    end
+  end)
+end
 
 function cb.run_job(cmd, message)
   message = message or "Working..."
   local frames = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
   local idx = 1
-  local timer = vim.loop.new_timer()
+  local timer = vim.uv.new_timer()
 
   -- Start spinner
   timer:start(100, 200, function()
@@ -154,7 +179,10 @@ function cb.run_job(cmd, message)
   -- Run command
   return vim.fn.jobstart(cmd, {
     on_stderr = function(id, output, _)
-      print(vim.inspect({ "job log", cmd, output }))
+      if #output then
+        local cmd_str, output_str = table.concat(cmd, " "), table.concat(output, "\n")
+        cb.log.info(cmd_str .. " OUTPUT-> " .. output_str)
+      end
     end,
     on_exit = function(id, exitcode, event)
       vim.schedule(function()
@@ -165,6 +193,11 @@ function cb.run_job(cmd, message)
         end
         timer:stop()
         timer:close()
+        sleep(1000, function()
+          vim.schedule(function()
+            vim.api.nvim_echo({ { "" } }, true, {})
+          end)
+        end)
       end)
     end,
   })

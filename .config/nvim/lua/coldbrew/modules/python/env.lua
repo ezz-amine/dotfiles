@@ -1,30 +1,51 @@
+local py = cb_mod("python.globals")
+
 local Env = {}
-
-local function neotree_opened()
-  local neotree_last_source = require("neo-tree.command")._last.source
-  local neotree_open = false
-  if neotree_last_source ~= nil then
-    neotree_open = require("neo-tree.sources.manager").get_state(neotree_last_source) ~= nil
-  end
-
-  return neotree_open
-end
+local default_config = {
+  venv_path = nil,
+  main = false,
+  persisted = false,
+  name = nil,
+}
 
 -- Constructor
-function Env.new(python_path)
-  local python_path, err = vim.loop.fs_realpath(python_path)
-  if err ~= nil then
-    error("error occured when loading main nvim python venv: " .. err, vim.log.levels.ERROR)
+function Env.new(name, python_path, options)
+  options = cb.tbl_merge(options or {}, default_config)
+
+  if python_path == nil and options.venv_path == nil then
+    error("either 'python_path' or 'venv_path' should be set")
+    return nil
+  end
+  if python_path == nil then
+    python_path = py.get_python_path(options.venv_path)
+  else
+    options.venv_path = vim.fs.dirname(vim.fs.dirname(python_path))
+  end
+  if options.name == nil then
+    options.name = vim.fn.fnamemodify(options.venv_path, ":t")
+  end
+
+  if not vim.uv.fs_stat(python_path) then
+    error("error occured when loading venv path[" .. python_path .. "]: " .. err, vim.log.levels.ERROR)
     return nil
   end
 
-  local bin_path = vim.loop.fs_realpath(vim.fs.dirname(vim.g.nvim_python_path))
+  local bin_path = vim.uv.fs_realpath(vim.fs.dirname(python_path))
+
   local self = setmetatable({
-    python_path = python_path,
+    name = options.name,
+    venv_path = options.venv_path,
     bin_path = bin_path,
+    python_path = python_path,
+    is_main = options.main,
+    is_persisted = options.persisted,
   }, { __index = Env })
 
   return self
+end
+
+function Env:printable_name()
+  return self.name .. (self.is_persisted and "" or "!")
 end
 
 function Env:bin(bin_name)
@@ -37,22 +58,29 @@ function Env:install_package(package_name)
   vim.fn.jobwait({ job_id })
 end
 
-function Env:ensure_binaries(binaries)
-  local packages = {}
-  for bin_name, package_name in pairs(binaries) do
-    if package_name == nil then
-      package_name = bin_name
-    end
-
-    if vim.fn.executable(self:bin(bin_name)) == 0 then
-      table.insert(packages, package_name)
+function Env:ensure_binaries(binaries, force)
+  function confirm(package_name)
+    local choice = vim.fn.confirm(
+      "",
+      "'" .. package_name .. "' missing from current virtual env. Should it be installed? {&Yes\n&No}",
+      2
+    )
+    if choice == 1 then
+      return true
+    elseif choice == 2 then
+      return false
     end
   end
 
-  if #packages > 0 then
-    local cmd = cb.tbl_merge({ self:bin("pip"), "install" }, packages)
-    print(vim.inspect(cmd))
-    local job_id = cb.run_job(cmd, "install missing coldbrew python packages")
+  for _, package in ipairs(binaries) do
+    if vim.fn.executable(self:bin(package.binary)) == 1 or (package.global and not self.main) then
+      goto continue
+    end
+    if force or confirm(package.name) then
+      local cmd = { self:bin("pip"), "install", package.name }
+      local job_id = cb.run_job(cmd, "install missing coldbrew python packages [" .. self.name .. "]| " .. package.name)
+    end
+    ::continue::
   end
 end
 

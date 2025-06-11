@@ -42,8 +42,7 @@ local function _create_config_file()
 end
 
 local function check_config_dir()
-  local dir_path, err = vim.loop.fs_realpath(ProjectsManager.base_path())
-  if err ~= nil then
+  if not vim.uv.fs_stat(ProjectsManager.base_path()) then
     local success, err = vim.fn.mkdir(ProjectsManager.base_path(), "p")
     if err ~= nil then
       error("Failed to create directory: " .. tostring(err), vim.log.levels.ERROR)
@@ -57,9 +56,7 @@ local function check_config_dir()
 end
 
 local function check_config_file()
-  local file_path, err = vim.loop.fs_realpath(ProjectsManager.config_path())
-
-  if err ~= nil then
+  if not vim.uv.fs_stat(ProjectsManager.config_path()) then
     _create_config_file()
     return false
   end
@@ -172,9 +169,9 @@ end
 
 function ProjectsManager.find_project_by_cwd()
   local raw_current = vim.fn.getcwd()
-  local current, err = vim.loop.fs_realpath(raw_current)
+  local current, err = vim.uv.fs_realpath(raw_current)
   for _, project in ipairs(ProjectsManager.projects) do
-    local project_path, err = vim.loop.fs_realpath(project.path)
+    local project_path, err = vim.uv.fs_realpath(project.path)
     if err ~= nil then
       error(err)
       return nil
@@ -189,18 +186,15 @@ end
 
 function ProjectsManager.create(args)
   args = vim.split(args, "%s+")
-  local project_name, raw_project_dir = f.get_arg(args, 1), f.get_arg(args, 2, vim.fn.getcwd())
-  local project_dir, err = vim.loop.fs_realpath(raw_project_dir)
+  local project_name, project_dir = f.get_arg(args, 1), f.get_arg(args, 2, vim.fn.getcwd())
 
-  if err ~= nil then
-    f.notify(raw_project_dir .. "is not a valid path", vim.log.levels.ERROR)
+  if not vim.uv.fs_stat(project_dir) then
+    f.notify(project_dir .. "is not a valid path", vim.log.levels.ERROR)
     return false
   end
 
   local project_rc_path = ProjectsManager.project_path(project_name)
-  local _, err = vim.loop.fs_realpath(project_rc_path)
-
-  if err == nil then
+  if vim.loop.fs_stat(project_rc_path) then
     f.notify("project " .. project_name .. " already exists, nothing happend", vim.log.levels.WARN)
     return false
   end

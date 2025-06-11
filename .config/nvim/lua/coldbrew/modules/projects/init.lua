@@ -21,7 +21,7 @@ function CBProjects.select_project(project)
   -- Get all modified buffers
   local unsaved_buffers = {}
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_get_option(buf, "modified") and vim.api.nvim_buf_get_option(buf, "buflisted") then
+    if vim.b[buf].modified and vim.b[buf].buflisted then
       local name = vim.api.nvim_buf_get_name(buf)
       table.insert(unsaved_buffers, {
         buf = buf,

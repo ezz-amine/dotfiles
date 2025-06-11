@@ -8,29 +8,33 @@ return function(opts)
       capabilities = capabilities,
       settings = {
         Lua = {
-          runtime = { version = 'LuaJIT' },
-          diagnostics = { globals = { 'vim' } },
+          runtime = { version = "LuaJIT" },
+          diagnostics = { globals = { "vim" } },
           telemetry = { enable = false },
+          workspace = {
+            checkThirdParty = false,
+            library = {
+              vim.env.VIMRUNTIME,
+              "${3rd}/luv/library",
+            },
+          },
         },
       },
     })
   end
 
   if cmp ~= nil then
-    cmp.setup.filetype('lua', {
-      sources = cmp.config.sources(
-        {
-          { name = 'nvim_lsp' },
-          { name = 'parrot' },
-          { name = 'lazydev' },
-          { name = 'luasnip' },
-        }, {
-          { name = 'buffer' },
-        },
-        {
-          { name = 'cmdline' }
-        }
-      )
+    cmp.setup.filetype("lua", {
+      sources = cmp.config.sources({
+        { name = "nvim_lsp" },
+        { name = "parrot" },
+        { name = "lazydev" },
+        { name = "luasnip" },
+      }, {
+        { name = "buffer" },
+      }, {
+        { name = "cmdline" },
+      }),
     })
   end
 end

@@ -1,4 +1,6 @@
 #!/bin/bash
+# need installations test
+#
 
 if [ "$(id -u)" -eq 0 ]; then
     echo "ERROR: This script should not be run as root. Please run as a regular user."
@@ -13,6 +15,8 @@ YAZI_SOURCE="https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64
 NEOVIM_SOURCE="https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz"
 STARSHIP_SOURCE="https://starship.rs/install.sh"
 BROWSH_SOURCE="https://github.com/browsh-org/browsh/releases/download/v1.8.0/browsh_1.8.0_linux_amd64.rpm"
+TMUX_SOURCE="https://github.com/tmux/tmux/releases/latest/download/tmux-3.4.tar.gz"
+GOLANG_SOURCE="https://go.dev/dl/go1.24.4.linux-amd64.tar.gz"
 
 cd ~
 
@@ -20,7 +24,8 @@ echo "Installing system packages..."
 sudo dnf install -y git curl wget gcc make cmake autoconf automake libtool \
     bzip2-devel openssl-devel ncurses-devel readline-devel zip unzip\
     zlib-devel libffi-devel sqlite-devel xz-devel postgresql-devel \
-    bat btop fish fzf ripgrep fd-find jq yq tldr xclip podman podman-compose
+    bat btop fish fzf ripgrep fd-find jq yq tldr xclip podman podman-compose \
+    libevent-devel zoxide epel-release
 
 echo "Enabling Node.js 22..."
 sudo dnf module enable -y nodejs:22
@@ -31,6 +36,16 @@ wget "$LAZYGIT_SOURCE" -O lazygit.tar.gz
 tar xf lazygit.tar.gz lazygit
 sudo install lazygit /usr/local/bin
 rm lazygit lazygit.tar.gz
+
+echo "Installing tmux and its dependencies..."
+wget "$TMUX_SOURCE" -O tmux.tar.gz
+tar -xzf tmux.tar.gz
+cd tmux-* || exit
+
+./configure && make -j "$(nproc)"
+sudo make install
+cd ..
+rm -rf tmux-* tmux.tar.gz
 
 echo "Installing yazi..."
 wget "$YAZI_SOURCE" -O yazi.zip
@@ -64,9 +79,10 @@ cd ..
 rm -rf Python-* Python.tar.gz
 
 echo "Installing Python tools..."
-python3.13 -m pip install --user uv pipx
+python3.13 -m pip install --user pipx
 python3.13 -m pipx ensurepath
 python3.13 -m pipx install poetry
+python3.13 -m pipx install posting
 
 echo "Installing Nerd Fonts..."
 mkdir -p ~/.local/share/fonts
@@ -87,8 +103,21 @@ echo "Setting up fish shell..."
 sudo chsh -s /usr/bin/fish "$USER"
 sudo chsh -s /usr/bin/fish root
 
+echo "Install Golang"
+wget "$GOLANG_SOURCE" -O golang.tar.gz
+rm -rf /usr/local/go && sudo tar -C /usr/local -xzf golang.tar.gz
+fish_add_path /usr/local/go/bin
+
 echo "Creating podman symlinks for docker compatibility..."
 sudo ln -sf /usr/bin/podman /usr/local/bin/docker
 sudo ln -sf /usr/bin/podman-compose /usr/local/bin/docker-compose
+
+echo "node global dependecies"
+npm i -g fish-lsp
+
+echo "installing cbansai"
+temp_dir=$(mktemp -d)
+git clone https://gitlab.com/jallbrit/cbonsai "$temp_dir"
+cd "$temp_dir/cbonsai"
 
 echo "Installation completed successfully!"

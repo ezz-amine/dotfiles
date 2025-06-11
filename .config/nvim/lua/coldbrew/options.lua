@@ -4,17 +4,22 @@ vim.g.maplocalleader = " "
 
 -- coldbrew - Home Brew
 local config = {}
-local instance_config_path = vim.fn.stdpath("data") .. "/.coldbrew.lua"
+local instance_config_path = vim.fs.joinpath(vim.fn.stdpath("data"), ".coldbrew.lua")
 if vim.fn.filereadable(instance_config_path) == 1 then
   config = dofile(instance_config_path)
 end
-vim.g.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
-vim.g.nvim_python_path = config["nvim_python_path"] or "~/.env/nvim/bin/python" -- Linux
+vim.g.python_bin = config["python_bin"] or "python"
+vim.g.python3_host_prog = vim.g.python_bin
 vim.g.preserve_cwd = config["preserve_cwd"] or true
 vim.g.github_token = config["gh_token"] or nil
 vim.g.gemini_token = config["gemini_token"] or nil
 vim.g.save_all_at_exit = false    -- running ColdBrew.save_all preLeave
 vim.g.save_session_at_exit = true -- save current project/session preLeave
+
+-- os/env specifis
+vim.g.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 10000
+vim.g.path_sep = vim.g.is_windows and ";" or ":"
+vim.g.run_in_tmux = vim.env.TMUX ~= nil
 
 -- Basic Neovim settings
 vim.g.have_nerd_font = false

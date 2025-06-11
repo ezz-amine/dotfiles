@@ -3,6 +3,7 @@ if status is-interactive
 end
 
 starship init fish | source
+zoxide init fish | source
 
 function activate
     source ~/.env/$argv[1]/bin/activate.fish

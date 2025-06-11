@@ -44,6 +44,21 @@ set("v", c_down, ":move '>+1<CR>gv=gv", { desc = "Move selection down" })
 set({ "n", "x" }, s_leader .. "s", "<cmd>TextCaseOpenTelescope<CR>", { desc = "[S]tring manipulation" })
 -- -- -- TEXT-CASE
 
+-- -- -- COPY ALL
+set({ "n", "v" }, "yA", function()
+  local saved_cursor = vim.fn.getpos(".")
+  vim.cmd("normal! gg")
+  vim.cmd("normal! yG")
+  vim.fn.setpos(".", saved_cursor)
+end, { desc = "Yank whole file and return to position" })
+-- -- -- COPY ALL
+-- -- -- SELECT ALL
+set("v", "A", function()
+  vim.cmd("normal! gg")
+  vim.cmd("normal! G$")
+end, { desc = "Select whole file" })
+-- -- -- SELECT ALL
+
 set("v", "<Tab>", ">gv", { noremap = true, silent = true })                     -- indent selection
 set("v", "<S-Tab>", "<gv", { noremap = true, silent = true })                   -- "de"-indent selection
 
