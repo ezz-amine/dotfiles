@@ -12,28 +12,73 @@ PYTHON_SOURCE="https://www.python.org/ftp/python/3.13.2/Python-3.13.2.tgz"
 NERD_FONTS_SOURCE="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/FiraCode.tar.xz"
 LAZYGIT_SOURCE="https://github.com/jesseduffield/lazygit/releases/download/v0.51.1/lazygit_0.51.1_Linux_x86_64.tar.gz"
 YAZI_SOURCE="https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-musl.zip"
-NEOVIM_SOURCE="https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz"
+NEOVIM_SOURCE="https://github.com/neovim/neovim/releases/download/v0.11.2/nvim-linux-x86_64.tar.gz"
 STARSHIP_SOURCE="https://starship.rs/install.sh"
 BROWSH_SOURCE="https://github.com/browsh-org/browsh/releases/download/v1.8.0/browsh_1.8.0_linux_amd64.rpm"
-TMUX_SOURCE="https://github.com/tmux/tmux/releases/latest/download/tmux-3.4.tar.gz"
+TMUX_SOURCE="https://github.com/tmux/tmux/releases/download/3.5a/tmux-3.5a.tar.gz"
 GOLANG_SOURCE="https://go.dev/dl/go1.24.4.linux-amd64.tar.gz"
+YQ_SOURCE="https://github.com/mikefarah/yq/releases/download/v4.45.4/yq_linux_amd64.tar.gz"
+GH_RPM="https://github.com/cli/cli/releases/download/v2.74.1/gh_2.74.1_linux_amd64.rpm"
+PORTS=(80 443 2400 4200 8000 8001 8080)
 
 cd ~
 
-echo "Installing system packages..."
+echo "Installing/Updating system packages..."
+sudo dnf upgrade --refresh
+sudo dnf update -y
+sudo dnf install -y epel-release 
+sudo dnf config-manager --set-enabled crb
+
+sudo dnf upgrade --refresh
+sudo dnf update -y
 sudo dnf install -y git curl wget gcc make cmake autoconf automake libtool \
     bzip2-devel openssl-devel ncurses-devel readline-devel zip unzip\
     zlib-devel libffi-devel sqlite-devel xz-devel postgresql-devel \
-    bat btop fish fzf ripgrep fd-find jq yq tldr xclip podman podman-compose \
-    libevent-devel zoxide epel-release
+    libdb-devel gdbm-devel tcl-devel tk-devel libuuid-devel \
+    bat btop fish fzf ripgrep fd-find jq xclip podman podman-compose \
+    libevent-devel zoxide rclone
 
 echo "Enabling Node.js 22..."
 sudo dnf module enable -y nodejs:22
 sudo dnf install -y nodejs npm
 
+echo "Installing GitHub CLI"
+sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+sudo dnf install gh -y
+
+# Check if firewalld is running
+if ! sudo systemctl is-active --quiet firewalld; then
+    echo "Firewalld is not running. Starting firewalld..."
+    sudo systemctl start firewalld
+    sudo systemctl enable firewalld
+fi
+
+# Add each port to firewalld
+for port in "${PORTS[@]}"; do
+    echo "Opening port $port/tcp..."
+    sudo firewall-cmd --permanent --add-port="$port/tcp"
+done
+
+# Reload firewalld to apply changes
+sudo firewall-cmd --reload
+
+# Verify the ports are open
+echo "Checking open ports..."
+sudo firewall-cmd --list-ports
+echo "Ports opened successfully!"
+
+echo "Installing yq"
+wget "$YQ_SOURCE" -O yq.tar.gz
+mkdir yq
+cd yq
+tar -xzf ../yq.tar.gz
+mv (rg --files -g "*yq_linux*" | head -n 1) yq
+sudo install -t /usr/local/bin yq
+rm -rf yq.tar.gz yq
+
 echo "Installing lazygit..."
 wget "$LAZYGIT_SOURCE" -O lazygit.tar.gz
-tar xf lazygit.tar.gz lazygit
+tar -xzf lazygit.tar.gz lazygit
 sudo install lazygit /usr/local/bin
 rm lazygit lazygit.tar.gz
 
@@ -42,10 +87,12 @@ wget "$TMUX_SOURCE" -O tmux.tar.gz
 tar -xzf tmux.tar.gz
 cd tmux-* || exit
 
+sudo dns install -y bison
 ./configure && make -j "$(nproc)"
 sudo make install
 cd ..
 rm -rf tmux-* tmux.tar.gz
+sudo dns remove -y bison
 
 echo "Installing yazi..."
 wget "$YAZI_SOURCE" -O yazi.zip
@@ -58,31 +105,19 @@ wget "$PYTHON_SOURCE" -O Python.tar.gz
 tar -xzf Python.tar.gz
 cd Python-*/ || exit
 
-./configure --enable-optimizations \
-            --with-lto \
-            --enable-shared \
-            --enable-ipv6 \
-            --with-system-expat \
-            --with-system-ffi \
-            --with-ensurepip=install \
-            --with-openssl \
-            --with-readline \
-            --with-zlib \
-            --with-bz2 \
-            --with-sqlite3 \
-            --with-lzma \
-            --with-curses
+./configure --enable-optimizations --with-ensurpip
 
 make -j "$(nproc)"
 sudo make altinstall
 cd ..
-rm -rf Python-* Python.tar.gz
+sudo rm -rf Python-* Python.tar.gz
 
 echo "Installing Python tools..."
 python3.13 -m pip install --user pipx
 python3.13 -m pipx ensurepath
 python3.13 -m pipx install poetry
 python3.13 -m pipx install posting
+python3.13 -m pipx install tldr
 
 echo "Installing Nerd Fonts..."
 mkdir -p ~/.local/share/fonts
@@ -97,7 +132,7 @@ sudo tar -C /usr/local -xzf nvim.tar.gz --strip-components=1
 rm nvim.tar.gz
 
 echo "Installing Starship..."
-curl -sS "$STARSHIP_SOURCE" | sh -s -- --yes
+curl -sS "$STARSHIP_SOURCE" | sudo h -s -- --yes
 
 echo "Setting up fish shell..."
 sudo chsh -s /usr/bin/fish "$USER"
@@ -105,19 +140,27 @@ sudo chsh -s /usr/bin/fish root
 
 echo "Install Golang"
 wget "$GOLANG_SOURCE" -O golang.tar.gz
-rm -rf /usr/local/go && sudo tar -C /usr/local -xzf golang.tar.gz
-fish_add_path /usr/local/go/bin
+sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf golang.tar.gz
+rm golang.tar.gz
 
 echo "Creating podman symlinks for docker compatibility..."
 sudo ln -sf /usr/bin/podman /usr/local/bin/docker
 sudo ln -sf /usr/bin/podman-compose /usr/local/bin/docker-compose
 
-echo "node global dependecies"
-npm i -g fish-lsp
+echo "node global packages"
+sudo npm i -g fish-lsp
 
 echo "installing cbansai"
-temp_dir=$(mktemp -d)
-git clone https://gitlab.com/jallbrit/cbonsai "$temp_dir"
-cd "$temp_dir/cbonsai"
+git clone https://gitlab.com/jallbrit/cbonsai
+cd cbonsai
+make install PREFIX=~/.local
+
+echo "Cleaning devel packages"
+sudo dnf remove -y bzip2-devel openssl-devel ncurses-devel readline-devel zlib-devel libffi-devel sqlite-devel xz-devel postgresql-devel libdb-devel gdbm-devel tcl-devel tk-devel libuuid-devel libevent-devel
+sudo dnf autoremove -y
 
 echo "Installation completed successfully!"
+
+
+
+
