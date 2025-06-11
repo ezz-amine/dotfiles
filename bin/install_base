@@ -118,6 +118,7 @@ python3.13 -m pipx ensurepath
 python3.13 -m pipx install poetry
 python3.13 -m pipx install posting
 python3.13 -m pipx install tldr
+python3.13 -m pipx install ipython
 
 echo "Installing Nerd Fonts..."
 mkdir -p ~/.local/share/fonts
