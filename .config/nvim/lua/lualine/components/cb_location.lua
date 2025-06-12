@@ -3,9 +3,9 @@ local M = lualine_require.require("lualine.component"):extend()
 
 local function progress(cur, total)
   if cur == 1 then
-    return "  "
+    return " 󰞖 "
   elseif cur == total then
-    return "  "
+    return " 󰞙 "
   else
     return string.format("%2d%%%%", math.floor(cur / total * 100))
   end
