@@ -1,6 +1,4 @@
 #!/bin/bash
-# need installations test
-#
 
 if [ "$(id -u)" -eq 0 ]; then
     echo "ERROR: This script should not be run as root. Please run as a regular user."
@@ -24,19 +22,19 @@ PORTS=(80 443 2400 4200 8000 8001 8080)
 cd ~
 
 echo "Installing/Updating system packages..."
-sudo dnf upgrade --refresh
+sudo dnf upgrade -y --refresh
 sudo dnf update -y
 sudo dnf install -y epel-release 
 sudo dnf config-manager --set-enabled crb
 
-sudo dnf upgrade --refresh
 sudo dnf update -y
+sudo dnf upgrade -y --refresh
 sudo dnf install -y git curl wget gcc make cmake autoconf automake libtool \
     bzip2-devel openssl-devel ncurses-devel readline-devel zip unzip\
     zlib-devel libffi-devel sqlite-devel xz-devel postgresql-devel \
     libdb-devel gdbm-devel tcl-devel tk-devel libuuid-devel \
     bat btop fish fzf ripgrep fd-find jq xclip podman podman-compose \
-    libevent-devel zoxide rclone
+    libevent-devel rclone
 
 echo "Enabling Node.js 22..."
 sudo dnf module enable -y nodejs:22
@@ -67,50 +65,77 @@ echo "Checking open ports..."
 sudo firewall-cmd --list-ports
 echo "Ports opened successfully!"
 
-echo "Installing yq"
-wget "$YQ_SOURCE" -O yq.tar.gz
-mkdir yq
-cd yq
-tar -xzf ../yq.tar.gz
-mv (rg --files -g "*yq_linux*" | head -n 1) yq
-sudo install -t /usr/local/bin yq
-rm -rf yq.tar.gz yq
+if command -v zoxide >/dev/null 2>&1; then
+    echo "zoxide exists, skipping"
+else
+    echo "Installing zoxide"
+    curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+fi
 
-echo "Installing lazygit..."
-wget "$LAZYGIT_SOURCE" -O lazygit.tar.gz
-tar -xzf lazygit.tar.gz lazygit
-sudo install lazygit /usr/local/bin
-rm lazygit lazygit.tar.gz
+if command -v yq >/dev/null 2>&1; then
+    echo "yq exists, skipping"
+else
+    echo "Installing yq"
+    wget "$YQ_SOURCE" -O yq.tar.gz
+    mkdir yq
+    cd yq
+    tar -xzf ../yq.tar.gz
+    mv $(rg --files -g "*yq_linux*" | head -n 1) yq
+    sudo install -t /usr/local/bin yq
+    rm -rf yq.tar.gz yq
+fi
 
-echo "Installing tmux and its dependencies..."
-wget "$TMUX_SOURCE" -O tmux.tar.gz
-tar -xzf tmux.tar.gz
-cd tmux-* || exit
+if command -v lazygit >/dev/null 2>&1; then
+    echo "lazygit exists, skipping"
+else
+    echo "Installing lazygit..."
+    wget "$LAZYGIT_SOURCE" -O lazygit.tar.gz
+    tar -xzf lazygit.tar.gz lazygit
+    sudo install lazygit /usr/local/bin
+    rm lazygit lazygit.tar.gz
+fi
 
-sudo dns install -y bison
-./configure && make -j "$(nproc)"
-sudo make install
-cd ..
-rm -rf tmux-* tmux.tar.gz
-sudo dns remove -y bison
+if command -v tmux >/dev/null 2>&1; then
+    echo "tmux exists, skipping"
+else
+    echo "Installing tmux and its dependencies..."
+    wget "$TMUX_SOURCE" -O tmux.tar.gz
+    tar -xzf tmux.tar.gz
+    cd tmux-* || exit
 
-echo "Installing yazi..."
-wget "$YAZI_SOURCE" -O yazi.zip
-unzip yazi.zip -d yazi-bin
-rg --files -g yazi ./yazi-bin | sudo xargs install -t /usr/local/bin
-rm -rf yazi.zip yazi-bin
+    sudo dnf install -y bison
+    ./configure && make -j "$(nproc)"
+    sudo make install
+    cd ..
+    rm -rf tmux-* tmux.tar.gz
+    sudo dnf remove -y bison
+fi
 
-echo "Building Python from source..."
-wget "$PYTHON_SOURCE" -O Python.tar.gz
-tar -xzf Python.tar.gz
-cd Python-*/ || exit
+if command -v yazi >/dev/null 2>&1; then
+    echo "yazi exists, skipping"
+else
+    echo "Installing yazi..."
+    wget "$YAZI_SOURCE" -O yazi.zip
+    unzip yazi.zip -d yazi-bin
+    rg --files -g yazi ./yazi-bin | sudo xargs install -t /usr/local/bin
+    rm -rf yazi.zip yazi-bin
+fi
 
-./configure --enable-optimizations --with-ensurpip
+if command -v python3.13 >/dev/null 2>&1; then
+    echo "python3.13 exists, skipping"
+else
+    echo "Building Python from source..."
+    wget "$PYTHON_SOURCE" -O Python.tar.gz
+    tar -xzf Python.tar.gz
+    cd Python-*/ || exit
 
-make -j "$(nproc)"
-sudo make altinstall
-cd ..
-sudo rm -rf Python-* Python.tar.gz
+    ./configure --enable-optimizations --with-ensurpip
+
+    make -j "$(nproc)"
+    sudo make altinstall
+    cd ..
+    sudo rm -rf Python-* Python.tar.gz
+fi
 
 echo "Installing Python tools..."
 python3.13 -m pip install --user pipx
@@ -127,31 +152,47 @@ tar -xf nerd-fonts.tar.xz -C ~/.local/share/fonts
 rm nerd-fonts.tar.xz
 fc-cache -fv
 
-echo "Installing Neovim..."
-wget "$NEOVIM_SOURCE" -O nvim.tar.gz
-sudo tar -C /usr/local -xzf nvim.tar.gz --strip-components=1
-rm nvim.tar.gz
+if command -v nvim >/dev/null 2>&1; then
+    echo "nvim exists, skipping"
+else
+    echo "Installing Neovim..."
+    wget "$NEOVIM_SOURCE" -O nvim.tar.gz
+    sudo tar -C /usr/local -xzf nvim.tar.gz --strip-components=1
+    rm nvim.tar.gz
+fi
 
-echo "Installing Starship..."
-curl -sS "$STARSHIP_SOURCE" | sudo h -s -- --yes
+if command -v starship >/dev/null 2>&1; then
+    echo "starship exists, skipping"
+else
+    echo "Installing Starship..."
+fi
+curl -sS "$STARSHIP_SOURCE" | sudo sh -s -- --yes
+
+if command -v /usr/local/go/bin/go >/dev/null 2>&1; then
+    echo "go exists, skipping"
+else
+    echo "Install Golang"
+    wget "$GOLANG_SOURCE" -O golang.tar.gz
+    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf golang.tar.gz
+    rm golang.tar.gz
+fi
 
 echo "Setting up fish shell..."
 sudo chsh -s /usr/bin/fish "$USER"
 sudo chsh -s /usr/bin/fish root
 
-echo "Install Golang"
-wget "$GOLANG_SOURCE" -O golang.tar.gz
-sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf golang.tar.gz
-rm golang.tar.gz
-
 echo "Creating podman symlinks for docker compatibility..."
 sudo ln -sf /usr/bin/podman /usr/local/bin/docker
 sudo ln -sf /usr/bin/podman-compose /usr/local/bin/docker-compose
 
-echo "node global packages"
-sudo npm i -g fish-lsp
+if command -v starship >/dev/null 2>&1; then
+    echo "fish-lsp exists, skipping"
+else
+    echo "node global packages"
+    sudo npm i -g fish-lsp
+fi
 
-echo "installing cbansai"
+echo "installing cbonsai"
 git clone https://gitlab.com/jallbrit/cbonsai
 cd cbonsai
 make install PREFIX=~/.local
@@ -161,7 +202,3 @@ sudo dnf remove -y bzip2-devel openssl-devel ncurses-devel readline-devel zlib-d
 sudo dnf autoremove -y
 
 echo "Installation completed successfully!"
-
-
-
-
