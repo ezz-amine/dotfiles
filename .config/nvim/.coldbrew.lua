@@ -1,5 +1,3 @@
 return {
-  nvim_python_path = "C:\\.env\\nvim\\Scriptspython.exe",
-  gemini_token = nil,
+  python_bin = "/usr/local/bin/python3.13",
 }
-
