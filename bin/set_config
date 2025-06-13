@@ -1,0 +1,77 @@
+#!/bin/bash
+CWD=$(pwd)
+
+function _symlink() {
+    local path="$1"
+
+    echo "Creating '$HOME/$path'"
+    ln -s "$CWD/$path" "$HOME/$path" 
+}
+
+function check_and_execute() {
+    local path="$1"
+
+    # If path does not exist
+    if [[ ! -e "$HOME/$path" ]]; then
+        _symlink $path
+        return
+    fi
+
+    read -r -p "'$HOME/$path' exists. Delete and proceed? [Y/n] " response
+    response="${response,,}"
+
+    if [[ -z "$response" || "$response" =~ ^(y|yes)$ ]]; then
+        echo "Deleting '$HOME/$path'..."
+        rm -rf "$HOME/$path"
+        _symlink $path
+    else
+        echo "Skipped '$HOME/$path'."
+    fi
+}
+
+if [ "$(id -u)" -eq 0 ]; then
+    echo "ERROR: This script should not be run as root. Please run as a regular user."
+    exit 1
+fi
+
+
+if ! git status > /dev/null 2>&1; then
+    read -r -p "This does not seem to be a Git repository, would you want to proceed? ([y]/[N]): " response
+    response="${response,,}"
+    echo
+    if [[ "$response" != "y" ]]; then
+        echo "Aborted."
+        exit 1
+    fi
+fi
+
+# creating ~/.config if does not exist
+mkdir -p "$HOME/.config"
+# tmux
+check_and_execute ".tmux.conf"
+
+# vim
+check_and_execute ".vimrc"
+
+# nvim
+check_and_execute ".config/nvim"
+
+# fish
+check_and_execute ".config/fish"
+
+# btop 
+check_and_execute ".config/btop"
+
+# yazi
+check_and_execute ".config/yazi"
+
+# starship.toml
+check_and_execute ".config/starship.toml"
+
+# personel configs
+# create nvim share folder
+mkdir -p "$HOME/.local/share/nvim"
+
+# - nvim
+cp "$CWD/.config/nvim/.coldbrew.lua" "$HOME/.local/share/nvim"
+
