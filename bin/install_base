@@ -34,7 +34,7 @@ sudo dnf install -y git curl wget gcc make cmake autoconf automake libtool \
     zlib-devel libffi-devel sqlite-devel xz-devel postgresql-devel \
     libdb-devel gdbm-devel tcl-devel tk-devel libuuid-devel \
     bat btop fish fzf ripgrep fd-find jq xclip podman podman-compose \
-    libevent-devel rclone
+    libevent-devel rclone cifs-utils
 
 echo "Enabling Node.js 22..."
 sudo dnf module enable -y nodejs:22
