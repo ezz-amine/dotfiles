@@ -21,8 +21,8 @@ function Env.new(name, python_path, options)
   else
     options.venv_path = vim.fs.dirname(vim.fs.dirname(python_path))
   end
-  if options.name == nil then
-    options.name = vim.fn.fnamemodify(options.venv_path, ":t")
+  if name == nil then
+    name = vim.fn.fnamemodify(options.venv_path, ":t")
   end
 
   if not vim.uv.fs_stat(python_path) then
@@ -33,7 +33,7 @@ function Env.new(name, python_path, options)
   local bin_path = vim.uv.fs_realpath(vim.fs.dirname(python_path))
 
   local self = setmetatable({
-    name = options.name,
+    name = name,
     venv_path = options.venv_path,
     bin_path = bin_path,
     python_path = python_path,
@@ -73,12 +73,12 @@ function Env:ensure_binaries(binaries, force)
   end
 
   for _, package in ipairs(binaries) do
-    if vim.fn.executable(self:bin(package.binary)) == 1 or (package.global and not self.main) then
+    if vim.fn.executable(self:bin(package.binary)) == 1 or (package.global and not self.is_main) then
       goto continue
     end
     if force or confirm(package.name) then
       local cmd = { self:bin("pip"), "install", package.name }
-      local job_id = cb.run_job(cmd, "install missing coldbrew python packages [" .. self.name .. "]| " .. package.name)
+      cb.run_job(cmd, "install missing coldbrew python packages [" .. self.name .. "]| " .. package.name)
     end
     ::continue::
   end

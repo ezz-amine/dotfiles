@@ -42,6 +42,7 @@ function CBPython.setup(config)
   CBPython.nvim_venv = Env.new("nvim[hidden]", nil, {
     venv_path = py.local_venv_path,
     main = true,
+    persisted = true,
   })
   vim.schedule(function()
     local active_venv_path = py.get_active_venv()
@@ -53,7 +54,7 @@ function CBPython.setup(config)
       })
     end
 
-    CBPython.nvim_venv:ensure_binaries(config.binaries)
+    CBPython.nvim_venv:ensure_binaries(config.binaries, true)
     if CBPython.current_venv ~= nil then
       CBPython.current_venv:ensure_binaries(config.binaries)
     end
