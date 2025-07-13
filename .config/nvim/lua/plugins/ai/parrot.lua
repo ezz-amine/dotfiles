@@ -1,6 +1,6 @@
 local gemini_token = "AIzaSyDvTM-BP8dSxxIruAtVWZxiJcpk9qV10JU"
 
-return vim.g.gemeni_token
+return vim.g.gemini_token
     and {
       "frankroeder/parrot.nvim",
       dependencies = {
