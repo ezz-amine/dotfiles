@@ -23,7 +23,7 @@ return {
         "python",
         "lua",
         "go",
-        "ecmascripts", -- web
+        "ecmascripts",
         "html",
         "css",
         "toml",
