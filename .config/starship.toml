@@ -16,7 +16,7 @@ $kotlin\
 $haskell\
 [](fg:soft_green)$line_break$character
 """
-right_format = """$cmd_duration"""
+right_format = """$cmd_duration$status"""
 
 palette = 'tokyo_night'
 
@@ -136,6 +136,12 @@ format = "[  in $duration ](fg:purple)"
 disabled = false
 show_notifications = true
 min_time_to_notify = 1000
+
+[status]
+disabled = false
+format = " [$symbol](bold fg:#ff757f) [$common_meaning](fg:#ff757f)"
+symbol = "✗"
+success_symbol = ""
 
 [palettes.tokyo_night]
 black = "#1f2335"
