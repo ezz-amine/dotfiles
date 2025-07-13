@@ -21,6 +21,55 @@ return function(opts)
           command = "LspEslintFixAll",
         })
       end,
+      -- settings = {
+      --   eslint = {
+      --     format = {
+      --       enable = true,
+      --       indentStyle = "space",
+      --     },
+      --     validate = "on",
+      --     workingDirectory = { mode = "auto" },
+      --   },
+      -- },
+      settings = {
+        -- packageManager = "npm",
+        -- Point to your config explicitly if needed
+        workingDirectory = { mode = "auto" },
+        -- For monorepos or non-standard paths
+        validate = "on",
+        rulesCustomizations = {},
+        run = "onType",
+        nodePath = "",
+        codeAction = {
+          disableRuleComment = {
+            enable = true,
+            location = "separateLine",
+          },
+          showDocumentation = {
+            enable = true,
+          },
+        },
+        codeActionOnSave = {
+          enable = false,
+          mode = "all",
+        },
+        format = false,          -- Let other plugins handle formatting
+        experimental = {
+          useFlatConfig = false, -- Set true if using eslint.config.js
+        },
+        rulesCustomizations = {
+          { rule = "indent", severity = "error", value = { 4, { SwitchCase = 1 } } },
+        },
+      },
+      root_dir = require("lspconfig.util").root_pattern(
+        ".eslintrc",
+        ".eslintrc.js",
+        ".eslintrc.json",
+        ".eslintrc.yml",
+        ".eslintrc.yaml",
+        "package.json",
+        "eslint.config.js"
+      ),
     })
   end
 end

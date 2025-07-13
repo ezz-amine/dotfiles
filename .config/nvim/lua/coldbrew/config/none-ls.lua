@@ -23,6 +23,9 @@ local sources = {
   null_ls.builtins.formatting.isort.with({
     extra_args = { "--settings-file", CBPython.settings_file },
   }),
+  -- GOLANG
+  null_ls.builtins.formatting.gofumpt,
+  null_ls.builtins.formatting.goimports,
   -- LUA
   null_ls.builtins.formatting.stylua,
   -- CSS/SASS/SCSS

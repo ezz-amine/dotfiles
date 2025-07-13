@@ -158,11 +158,17 @@ set({ "n", "x", "v" }, "<c-q>", multicursor.toggleCursor)
 
 -- TIME-MACHINE.NVIM
 -- -- localhistory
-set({ "n", "x" }, s_leader .. "h", "<cmd>TimeMachineToggle<CR>", { desc = "Local [H]istory" })
+set({ "n", "x" }, s_leader .. "h", "<cmd>TimeMachineToggle<CR>", { desc = "Local [H]istory", silent = true })
 -- TIME-MACHINE.NVIM
 
 -- COLDBREW - SUPER-DUPER-CUSTOM
-set("n", "<leader>td", "<cmd>CBGreb @todo<cr>", { desc = "[T]O[D]O comment list" })
-set("n", "<leader>op", ":Telescope cb_projects<cr>", { desc = "[O]pen [P]roject, show coldbrew projects/sessions" })
+set("n", "<leader>td", "<cmd>CBGreb @todo<cr>", { desc = "[T]O[D]O comment list", silent = true })
+set(
+  "n",
+  "<leader>op",
+  ":Telescope cb_projects<cr>",
+  { desc = "[O]pen [P]roject, show coldbrew projects/sessions", silent = true }
+)
+set("n", "<leader>gd", "<cmd>lua vim.lsp.buf.definition()<CR>", { noremap = true, silent = true })
 -- set({ 'n', 'v' }, '<C-s>', ":CBSaveAll<cr>", { silent = true, desc = 'Save all buffers' })
 -- set('i', '<C-s>', function() vim.cmd(':CBSaveAll') end, { silent = true, desc = 'Save all buffers' })

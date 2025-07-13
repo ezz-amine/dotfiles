@@ -8,6 +8,10 @@ local servers = {
   "docker_compose_language_service",
   "gopls",
   "bashls",
+  "fish_lsp",
+  "eslint",
+  "cssls",
+  "html",
 }
 local packages = {
   "stylua",
@@ -17,6 +21,8 @@ local packages = {
   "markdownlint",
   "yamllint",
   "sqlfluff",
+  "goimports",
+  "gofumpt",
 }
 
 return {
@@ -24,6 +30,6 @@ return {
   lspconfig = {
     automatic_installation = true,
     ensure_installed = servers,
-    automatic_enable = servers,
+    automatic_enable = {},
   },
 }
